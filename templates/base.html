@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}What now?{% endblock %}</title>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="{% url 'home' %}"><strong>What now?</strong></a>
+      {% if user.is_authenticated %}
+        <span>Merhaba, {{ user.username }}</span>
+        <form method="post" action="{% url 'accounts:logout' %}" style="display:inline">
+          {% csrf_token %}
+          <button type="submit">Çıkış yap</button>
+        </form>
+      {% else %}
+        <a href="{% url 'accounts:login' %}">Giriş yap</a>
+        <a href="{% url 'accounts:signup' %}">Kayıt ol</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main>
+    {% if messages %}
+      <ul>
+        {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
