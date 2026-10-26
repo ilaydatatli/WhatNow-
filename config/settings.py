@@ -85,10 +85,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 # Database
 # Uses DATABASE_URL (Supabase PostgreSQL) when set, otherwise falls back to SQLite.
+# An empty DATABASE_URL (as in .env.example) also counts as "not set".
 
 DATABASES = {
-    "default": dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+    "default": dj_database_url.parse(
+        os.environ.get("DATABASE_URL") or f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
     )
 }
 
