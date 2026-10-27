@@ -233,7 +233,7 @@ Her faz bağımsız bir Claude Code oturumunda çalıştırılabilir. Aşağıda
 
 ---
 
-### ⬜ Faz 3 — Arayüz ve Tasarım
+### ✅ Faz 3 — Arayüz ve Tasarım
 **Hedef:** Bölüm 6'daki sıcak, samimi görünüm.
 
 **Prompt:**

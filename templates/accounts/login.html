@@ -3,15 +3,15 @@
 {% block title %}Giriş yap · What now?{% endblock %}
 
 {% block content %}
-  <h1>Giriş yap</h1>
-  <form method="post" novalidate>
+  <h1>Tekrar hoş geldin</h1>
+  <form method="post" class="card form-card" novalidate>
     {% csrf_token %}
     {{ form.as_p }}
     <input type="hidden" name="next" value="{{ next }}">
-    <button type="submit">Giriş yap</button>
+    <button type="submit" class="btn btn-block">Giriş yap</button>
+    <p class="form-footer">
+      Hesabın yok mu?
+      <a href="{% url 'accounts:signup' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Kayıt ol</a>
+    </p>
   </form>
-  <p>
-    Hesabın yok mu?
-    <a href="{% url 'accounts:signup' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Kayıt ol</a>
-  </p>
 {% endblock %}

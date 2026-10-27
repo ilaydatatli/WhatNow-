@@ -4,30 +4,36 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}What now?{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
   <script src="{% static 'js/main.js' %}" defer></script>
 </head>
 <body>
-  <header>
-    <nav>
-      <a href="{% url 'polls:list' %}"><strong>What now?</strong></a>
-      <a href="{% url 'polls:create' %}">Anket aç</a>
-      {% if user.is_authenticated %}
-        <span>Merhaba, {{ user.username }}</span>
-        <form method="post" action="{% url 'accounts:logout' %}" style="display:inline">
-          {% csrf_token %}
-          <button type="submit">Çıkış yap</button>
-        </form>
-      {% else %}
-        <a href="{% url 'accounts:login' %}">Giriş yap</a>
-        <a href="{% url 'accounts:signup' %}">Kayıt ol</a>
-      {% endif %}
-    </nav>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="{% url 'polls:list' %}">What now<span>?</span></a>
+      <nav class="nav">
+        <a href="{% url 'polls:create' %}">Anket aç</a>
+        {% if user.is_authenticated %}
+          <span class="nav-user">@{{ user.username }}</span>
+          <form method="post" action="{% url 'accounts:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="link-button">Çıkış yap</button>
+          </form>
+        {% else %}
+          <a href="{% url 'accounts:login' %}">Giriş yap</a>
+          <a href="{% url 'accounts:signup' %}">Kayıt ol</a>
+        {% endif %}
+      </nav>
+    </div>
   </header>
 
-  <main>
+  <main class="container">
     {% if messages %}
-      <ul>
-        {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+      <ul class="messages">
+        {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}
       </ul>
     {% endif %}
 

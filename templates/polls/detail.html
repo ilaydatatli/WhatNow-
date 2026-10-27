@@ -4,48 +4,57 @@
 {% block title %}{{ poll.question }} · What now?{% endblock %}
 
 {% block content %}
-  <h1>{{ poll.question }}</h1>
-  <p>{{ poll.author.username }} sordu · {{ poll.created_at|ago }}</p>
+  <article class="card">
+    <header class="poll-head">
+      <h1 class="poll-question">{{ poll.question }}</h1>
+      <p class="meta">
+        <span class="badge">@{{ poll.author.username }}</span>
+        <span>{{ poll.created_at|ago }}</span>
+        {% if has_voted %}<span>·</span><span>Toplam {{ total }} oy</span>{% endif %}
+      </p>
+    </header>
 
-  {% if has_voted %}
-    <h2>Sonuçlar</h2>
-    <p>Toplam {{ total }} oy</p>
-    <ul>
-      {% for row in results %}
-        <li>
-          <strong>{{ row.option.text }}</strong>
-          {% if row.is_winner %}(önde){% endif %}
-          {% if row.is_mine %}(senin oyun){% endif %}
-          — %{{ row.percent }} ({{ row.count }} oy)
-          <br>
-          <progress max="100" value="{{ row.percent }}">%{{ row.percent }}</progress>
-          {% if row.usernames or row.guest_count %}
-            <br>
-            <small>
-              {{ row.usernames|join:", " }}
-              {% if row.guest_count %}{% if row.usernames %}+{% endif %}{{ row.guest_count }} misafir{% endif %}
-            </small>
-          {% endif %}
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <form method="post" action="{% url 'polls:vote' poll.pk %}">
-      {% csrf_token %}
-      {% for option in options %}
-        <p>
-          <label>
+    {% if has_voted %}
+      <h2>Sonuçlar</h2>
+      <ul class="results">
+        {% for row in results %}
+          <li class="result{% if row.is_winner %} is-winner{% endif %}">
+            <div class="result-head">
+              <span class="result-label">
+                {{ row.option.text }}
+                {% if row.is_winner %}<span class="tag tag-winner">önde</span>{% endif %}
+                {% if row.is_mine %}<span class="tag">senin oyun</span>{% endif %}
+              </span>
+              <span class="result-numbers"><strong>%{{ row.percent }}</strong> · {{ row.count }} oy</span>
+            </div>
+            <div class="bar" role="img" aria-label="%{{ row.percent }}">
+              <div class="bar-fill" style="width: {{ row.percent }}%"></div>
+            </div>
+            {% if row.usernames or row.guest_count %}
+              <p class="voters">
+                {{ row.usernames|join:", " }}
+                {% if row.guest_count %}{% if row.usernames %}+{% endif %}{{ row.guest_count }} misafir{% endif %}
+              </p>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <form method="post" action="{% url 'polls:vote' poll.pk %}">
+        {% csrf_token %}
+        {% for option in options %}
+          <label class="choice">
             <input type="radio" name="option" value="{{ option.pk }}" required>
-            {{ option.text }}
+            <span>{{ option.text }}</span>
           </label>
-        </p>
-      {% endfor %}
-      <button type="submit">Oy ver</button>
-    </form>
-    {% if not user.is_authenticated %}
-      <p><small>Oy vermek için üye olman gerekmez; misafir olarak görünürsün.</small></p>
+        {% endfor %}
+        <button type="submit" class="btn btn-block">Oy ver</button>
+      </form>
+      {% if not user.is_authenticated %}
+        <p class="note">Oy vermek için üye olman gerekmez; misafir olarak görünürsün.</p>
+      {% endif %}
     {% endif %}
-  {% endif %}
+  </article>
 
-  <p><a href="{% url 'polls:list' %}">← Tüm anketler</a></p>
+  <a class="back-link" href="{% url 'polls:list' %}">← Tüm anketler</a>
 {% endblock %}

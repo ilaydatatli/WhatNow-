@@ -2,24 +2,37 @@
 {% load poll_extras %}
 
 {% block content %}
-  <h1>Son anketler</h1>
+  <div class="page-head">
+    <h1>Son anketler</h1>
+    <a class="btn" href="{% url 'polls:create' %}">+ Soru sor</a>
+  </div>
 
-  {% for poll in page %}
-    <article>
-      <h2><a href="{% url 'polls:detail' poll.pk %}">{{ poll.question }}</a></h2>
-      <p>
-        {{ poll.author.username }} · {{ poll.vote_count }} oy · {{ poll.created_at|ago }}
-      </p>
-    </article>
-  {% empty %}
-    <p>Henüz anket yok — <a href="{% url 'polls:create' %}">ilk soruyu sen sor!</a></p>
-  {% endfor %}
+  {% if page.object_list %}
+    <ul class="poll-list">
+      {% for poll in page %}
+        <li class="card poll-card">
+          <h2><a href="{% url 'polls:detail' poll.pk %}">{{ poll.question }}</a></h2>
+          <p class="meta">
+            <span class="badge">@{{ poll.author.username }}</span>
+            <span>{{ poll.vote_count }} oy</span>
+            <span>·</span>
+            <span>{{ poll.created_at|ago }}</span>
+          </p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="card empty">
+      <p>Henüz anket yok — ilk soruyu sen sor!</p>
+      <a class="btn" href="{% url 'polls:create' %}">Anket aç</a>
+    </div>
+  {% endif %}
 
   {% if page.has_other_pages %}
-    <nav>
-      {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">← Daha yeni</a>{% endif %}
+    <nav class="pager">
+      {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">← Daha yeni</a>{% else %}<span></span>{% endif %}
       <span>Sayfa {{ page.number }} / {{ page.paginator.num_pages }}</span>
-      {% if page.has_next %}<a href="?page={{ page.next_page_number }}">Daha eski →</a>{% endif %}
+      {% if page.has_next %}<a href="?page={{ page.next_page_number }}">Daha eski →</a>{% else %}<span></span>{% endif %}
     </nav>
   {% endif %}
 {% endblock %}

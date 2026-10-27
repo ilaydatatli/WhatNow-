@@ -5,30 +5,30 @@
 {% block content %}
   <h1>Yeni anket</h1>
 
-  <form method="post" novalidate>
+  <form method="post" class="card form-card" novalidate>
     {% csrf_token %}
     {{ form.non_field_errors }}
 
-    {{ form.question.errors }}
     <p>
-      <label for="{{ form.question.id_for_label }}">{{ form.question.label }}</label><br>
+      <label for="{{ form.question.id_for_label }}">{{ form.question.label }}</label>
+      {{ form.question.errors }}
       {{ form.question }}
     </p>
 
     <fieldset data-options data-min="{{ min_options }}" data-max="{{ max_options }}">
-      <legend>Seçenekler ({{ min_options }}–{{ max_options }})</legend>
+      <legend>Seçenekler <small>({{ min_options }}–{{ max_options }})</small></legend>
       <div data-option-list>
         {% for value in form.option_values %}
-          <p data-option-row>
+          <div class="option-row" data-option-row>
             <input type="text" name="options" value="{{ value }}" maxlength="100"
                    placeholder="Seçenek" aria-label="Seçenek">
-            <button type="button" data-remove-option>Kaldır</button>
-          </p>
+            <button type="button" class="btn btn-ghost btn-small" data-remove-option>Kaldır</button>
+          </div>
         {% endfor %}
       </div>
-      <button type="button" data-add-option>+ Seçenek ekle</button>
+      <button type="button" class="btn btn-ghost btn-small" data-add-option>+ Seçenek ekle</button>
     </fieldset>
 
-    <p><button type="submit">Anketi yayınla</button></p>
+    <button type="submit" class="btn btn-block">Anketi yayınla</button>
   </form>
 {% endblock %}
