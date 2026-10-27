@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load poll_extras %}
+
+{% block content %}
+  <h1>Son anketler</h1>
+
+  {% for poll in page %}
+    <article>
+      <h2><a href="{% url 'polls:detail' poll.pk %}">{{ poll.question }}</a></h2>
+      <p>
+        {{ poll.author.username }} · {{ poll.vote_count }} oy · {{ poll.created_at|ago }}
+      </p>
+    </article>
+  {% empty %}
+    <p>Henüz anket yok — <a href="{% url 'polls:create' %}">ilk soruyu sen sor!</a></p>
+  {% endfor %}
+
+  {% if page.has_other_pages %}
+    <nav>
+      {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">← Daha yeni</a>{% endif %}
+      <span>Sayfa {{ page.number }} / {{ page.paginator.num_pages }}</span>
+      {% if page.has_next %}<a href="?page={{ page.next_page_number }}">Daha eski →</a>{% endif %}
+    </nav>
+  {% endif %}
+{% endblock %}

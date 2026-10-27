@@ -5,6 +5,7 @@ All secrets and environment-specific values come from environment variables
 (loaded from a local .env file during development via python-dotenv).
 """
 import os
+import sys
 from pathlib import Path
 
 import dj_database_url
@@ -61,6 +62,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "polls.middleware.VoterTokenMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -134,5 +136,8 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+if "test" in sys.argv:
+    # Tests run without collectstatic, so there is no manifest to look up hashed names in.
+    STORAGES["staticfiles"]["BACKEND"] = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

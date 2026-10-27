@@ -223,7 +223,7 @@ Her faz bağımsız bir Claude Code oturumunda çalıştırılabilir. Aşağıda
 
 ---
 
-### ⬜ Faz 2 — Anketler ve Oylama
+### ✅ Faz 2 — Anketler ve Oylama
 **Hedef:** Uygulamanın çekirdeği.
 
 **Prompt:**

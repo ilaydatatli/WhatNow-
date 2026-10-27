@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load poll_extras %}
+
+{% block title %}{{ poll.question }} · What now?{% endblock %}
+
+{% block content %}
+  <h1>{{ poll.question }}</h1>
+  <p>{{ poll.author.username }} sordu · {{ poll.created_at|ago }}</p>
+
+  {% if has_voted %}
+    <h2>Sonuçlar</h2>
+    <p>Toplam {{ total }} oy</p>
+    <ul>
+      {% for row in results %}
+        <li>
+          <strong>{{ row.option.text }}</strong>
+          {% if row.is_winner %}(önde){% endif %}
+          {% if row.is_mine %}(senin oyun){% endif %}
+          — %{{ row.percent }} ({{ row.count }} oy)
+          <br>
+          <progress max="100" value="{{ row.percent }}">%{{ row.percent }}</progress>
+          {% if row.usernames or row.guest_count %}
+            <br>
+            <small>
+              {{ row.usernames|join:", " }}
+              {% if row.guest_count %}{% if row.usernames %}+{% endif %}{{ row.guest_count }} misafir{% endif %}
+            </small>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <form method="post" action="{% url 'polls:vote' poll.pk %}">
+      {% csrf_token %}
+      {% for option in options %}
+        <p>
+          <label>
+            <input type="radio" name="option" value="{{ option.pk }}" required>
+            {{ option.text }}
+          </label>
+        </p>
+      {% endfor %}
+      <button type="submit">Oy ver</button>
+    </form>
+    {% if not user.is_authenticated %}
+      <p><small>Oy vermek için üye olman gerekmez; misafir olarak görünürsün.</small></p>
+    {% endif %}
+  {% endif %}
+
+  <p><a href="{% url 'polls:list' %}">← Tüm anketler</a></p>
+{% endblock %}

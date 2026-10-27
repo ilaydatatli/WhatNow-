@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Anket aç · What now?{% endblock %}
+
+{% block content %}
+  <h1>Yeni anket</h1>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    {{ form.question.errors }}
+    <p>
+      <label for="{{ form.question.id_for_label }}">{{ form.question.label }}</label><br>
+      {{ form.question }}
+    </p>
+
+    <fieldset data-options data-min="{{ min_options }}" data-max="{{ max_options }}">
+      <legend>Seçenekler ({{ min_options }}–{{ max_options }})</legend>
+      <div data-option-list>
+        {% for value in form.option_values %}
+          <p data-option-row>
+            <input type="text" name="options" value="{{ value }}" maxlength="100"
+                   placeholder="Seçenek" aria-label="Seçenek">
+            <button type="button" data-remove-option>Kaldır</button>
+          </p>
+        {% endfor %}
+      </div>
+      <button type="button" data-add-option>+ Seçenek ekle</button>
+    </fieldset>
+
+    <p><button type="submit">Anketi yayınla</button></p>
+  </form>
+{% endblock %}
