@@ -8,10 +8,10 @@ MAX_OPTIONS = 5
 
 class Poll(models.Model):
     author = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="polls"
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="polls", verbose_name="yazar"
     )
     question = models.CharField("soru", max_length=200)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField("olusturulma_tarihi", auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]

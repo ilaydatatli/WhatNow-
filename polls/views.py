@@ -21,7 +21,7 @@ def _find_vote(request, poll):
 
 
 def poll_list(request):
-    polls = Poll.objects.select_related("author").annotate(vote_count=Count("votes"))
+    polls = Poll.objects.select_related("author").annotate(vote_count=Count("votes")).order_by("-created_at")
     page = Paginator(polls, POLLS_PER_PAGE).get_page(request.GET.get("page"))
     return render(request, "polls/list.html", {"page": page})
 
