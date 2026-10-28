@@ -48,12 +48,9 @@ what-now/
 ├── CLAUDE.md
 ├── README.md
 ├── requirements.txt
-├── manage.py
-├── vercel.json
+├── manage.py               # Vercel Django'yu bu dosyadan otomatik tanır (vercel.json / api/ gerekmez)
 ├── .env.example
 ├── .gitignore
-├── api/
-│   └── index.py            # Vercel giriş noktası (WSGI app)
 ├── config/                 # Django proje ayarları
 │   ├── settings.py
 │   ├── urls.py
@@ -196,6 +193,12 @@ what-now/
 - Lokal geliştirmede `DATABASE_URL` yoksa SQLite'a düş (hızlı başlangıç için).
 - Migration'lar Vercel build'inde **çalıştırılmaz**; lokalden Supabase'e karşı elle çalıştırılır.
 - Vercel yapılandırması zamanla değişebilir: Faz 4'te kurulumdan önce **Vercel'in güncel Python/Django dokümantasyonunu kontrol et** ve ona uy.
+- Faz 4'te (Ekim 2026) doğrulanan durum:
+  - Vercel Django'yu `manage.py` → `WSGI_APPLICATION` üzerinden **sıfır yapılandırmayla** tanır; `vercel.json` ve `api/index.py` **kullanılmıyor**.
+  - Vercel `STATIC_ROOT` tanımlıysa `collectstatic`'i build'de **kendisi çalıştırır** ve dosyaları CDN'den sunar; WhiteNoise lokal ve yedek olarak kalır.
+  - Python sürümü Vercel varsayılanı (3.12).
+- Canlı adres: https://what-now-ashen.vercel.app — Vercel ortam değişkenleri: `SECRET_KEY`, `DEBUG=False`, `ALLOWED_HOSTS=what-now-ashen.vercel.app`, `CSRF_TRUSTED_ORIGINS=https://what-now-ashen.vercel.app`, `DATABASE_URL` (Transaction pooler, 6543).
+- Ortam değişkeni değişince Vercel'de **Redeploy** gerekir; kod değişikliğinde `git push` yeterli.
 
 ---
 
@@ -243,7 +246,7 @@ Her faz bağımsız bir Claude Code oturumunda çalıştırılabilir. Aşağıda
 
 ---
 
-### ⬜ Faz 4 — Supabase ve Vercel'e Yayın
+### ✅ Faz 4 — Supabase ve Vercel'e Yayın
 **Hedef:** Canlıya çıkmış prototip.
 
 **Prompt:**
