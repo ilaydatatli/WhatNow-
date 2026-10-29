@@ -10,4 +10,5 @@ urlpatterns = [
     path("login/", views.EmailLoginView.as_view(), name="login"),
     # Django's LogoutView only accepts POST.
     path("logout/", LogoutView.as_view(), name="logout"),
+    path("profile/", views.profile, name="profile"),
 ]

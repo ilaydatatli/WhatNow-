@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load poll_extras %}
+
+{% block title %}Profilim · What now?{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>@{{ user.username }}</h1>
+    <a class="btn" href="{% url 'polls:create' %}">+ Soru sor</a>
+  </div>
+
+  <div class="stats">
+    <div class="card stat">
+      <span class="stat-number">{{ polls|length }}</span>
+      <span class="stat-label">açtığım anket</span>
+    </div>
+    <div class="card stat">
+      <span class="stat-number">{{ votes|length }}</span>
+      <span class="stat-label">oy verdiğim anket</span>
+    </div>
+  </div>
+
+  <h2>Anketlerim</h2>
+
+  {% if polls %}
+    <ul class="poll-list">
+      {% for poll in polls %}
+        <li class="card poll-card">
+          <h2><a href="{% url 'polls:detail' poll.pk %}">{{ poll.question }}</a></h2>
+          <p class="meta">
+            <span>{{ poll.vote_count }} oy</span>
+            <span>·</span>
+            <span>{{ poll.created_at|ago }}</span>
+          </p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="card empty">
+      <p>Henüz anket açmadın — ilk soruyu sen sor!</p>
+      <a class="btn" href="{% url 'polls:create' %}">Anket aç</a>
+    </div>
+  {% endif %}
+
+  <h2>Oy verdiklerim</h2>
+
+  {% if votes %}
+    <ul class="poll-list">
+      {% for vote in votes %}
+        <li class="card poll-card">
+          <h2><a href="{% url 'polls:detail' vote.poll.pk %}">{{ vote.poll.question }}</a></h2>
+          <p class="meta">
+            <span class="badge">@{{ vote.poll.author.username }}</span>
+            <span>Seçimin: <strong>{{ vote.option.text }}</strong></span>
+            <span>·</span>
+            <span>{{ vote.created_at|ago }}</span>
+          </p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="card empty">
+      <p>Henüz hiçbir ankete oy vermedin.</p>
+      <a class="btn" href="{% url 'polls:list' %}">Anketlere göz at</a>
+    </div>
+  {% endif %}
+{% endblock %}

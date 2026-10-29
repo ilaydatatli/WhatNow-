@@ -17,7 +17,7 @@
       <nav class="nav">
         <a href="{% url 'polls:create' %}">Anket aç</a>
         {% if user.is_authenticated %}
-          <span class="nav-user">@{{ user.username }}</span>
+          <a class="nav-user" href="{% url 'accounts:profile' %}">@{{ user.username }}</a>
           <form method="post" action="{% url 'accounts:logout' %}">
             {% csrf_token %}
             <button type="submit" class="link-button">Çıkış yap</button>

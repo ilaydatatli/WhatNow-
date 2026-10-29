@@ -291,6 +291,31 @@ main.container {
 
 .pager span { color: var(--ink-soft); }
 
+/* ---------- Profile ---------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat {
+  margin: 0;
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1.2;
+}
+
+.stat-label { color: var(--ink-soft); }
+
 /* ---------- Messages ---------- */
 
 .messages {
