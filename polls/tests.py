@@ -108,3 +108,33 @@ class PollListTests(TestCase):
         response = self.client.get("/")
         self.assertContains(response, poll.question)
         self.assertContains(response, "1 oy")
+
+
+class PollDeleteTests(TestCase):
+    def setUp(self):
+        self.owner = User.objects.create_user(
+            username="ayse", email="ayse@example.com", password="kahve-fincani-42"
+        )
+        self.other = User.objects.create_user(
+            username="mehmet", email="mehmet@example.com", password="cay-bardagi-42"
+        )
+        self.poll = make_poll(self.owner)
+        self.url = reverse("polls:delete", args=[self.poll.pk])
+
+    def test_get_shows_confirmation_without_deleting(self):
+        self.client.force_login(self.owner)
+        response = self.client.get(self.url)
+        self.assertContains(response, "emin misin")
+        self.assertTrue(Poll.objects.filter(pk=self.poll.pk).exists())
+
+    def test_owner_can_delete(self):
+        self.client.force_login(self.owner)
+        response = self.client.post(self.url)
+        self.assertRedirects(response, reverse("accounts:profile"))
+        self.assertFalse(Poll.objects.filter(pk=self.poll.pk).exists())
+
+    def test_other_user_cannot_delete(self):
+        self.client.force_login(self.other)
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(Poll.objects.filter(pk=self.poll.pk).exists())

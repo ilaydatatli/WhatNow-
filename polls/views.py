@@ -109,3 +109,13 @@ def poll_create(request):
         "min_options": MIN_OPTIONS,
         "max_options": MAX_OPTIONS,
     })
+
+
+@login_required
+def poll_delete(request, pk):
+    poll = get_object_or_404(Poll, pk=pk, author=request.user)
+    if request.method == "POST":
+        poll.delete()
+        messages.success(request, "Anketin silindi.")
+        return redirect("accounts:profile")
+    return render(request, "polls/delete.html", {"poll": poll})

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Anketi sil · What now?{% endblock %}
+
+{% block content %}
+  <h1>Anketi sil</h1>
+
+  <form method="post" class="card form-card">
+    {% csrf_token %}
+    <p>Bu anketi silmek istediğine emin misin? Tüm oylar da silinecek; bu işlem geri alınamaz.</p>
+    <p class="poll-question">{{ poll.question }}</p>
+    <div class="delete-actions">
+      <button type="submit" class="btn">Evet, sil</button>
+      <a class="btn btn-ghost" href="{% url 'accounts:profile' %}">Vazgeç</a>
+    </div>
+  </form>
+{% endblock %}

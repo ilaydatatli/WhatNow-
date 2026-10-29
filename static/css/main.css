@@ -316,6 +316,20 @@ main.container {
 
 .stat-label { color: var(--ink-soft); }
 
+/* Sits above the card-wide title link so it stays clickable. */
+.card-action {
+  position: relative;
+  z-index: 1;
+  margin-left: auto;
+  font-weight: 600;
+}
+
+.delete-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
 /* ---------- Messages ---------- */
 
 .messages {

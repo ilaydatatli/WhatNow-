@@ -31,6 +31,7 @@
             <span>{{ poll.vote_count }} oy</span>
             <span>·</span>
             <span>{{ poll.created_at|ago }}</span>
+            <a class="card-action" href="{% url 'polls:delete' poll.pk %}">Sil</a>
           </p>
         </li>
       {% endfor %}
