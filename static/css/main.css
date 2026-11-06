@@ -1,20 +1,21 @@
-/* What now? — warm "notebook paper" theme. See CLAUDE.md section 6. */
+/* What now? — "library book" theme. See CLAUDE.md section 6. */
 
 :root {
-  --bg:          #FBF3E4;  /* cream paper */
-  --surface:     #FFF9EF;  /* card background */
-  --ink:         #3D2C2E;  /* dark brown text */
-  --ink-soft:    #7A6563;  /* secondary text */
-  --primary:     #C8553D;  /* terracotta */
-  --primary-dk:  #A4412D;  /* hover */
-  --accent:      #E0A458;  /* mustard */
-  --olive:       #6B705C;  /* badges */
-  --line:        #E6D5BC;  /* borders */
+  --bg:          #F3ECDD;  /* aged paper */
+  --surface:     #FBF7EE;  /* page */
+  --ink:         #2B2A26;  /* ink */
+  --ink-soft:    #6B655A;  /* pencil */
+  --primary:     #7A2E2E;  /* oxblood binding */
+  --primary-dk:  #5E2121;  /* hover */
+  --accent:      #B8893B;  /* antique gilt — stars, progress */
+  --olive:       #34493D;  /* library green — header, badges, spines */
+  --line:        #D9CDB5;  /* borders */
 
-  --radius: 14px;
-  --shadow: 3px 3px 0 var(--line);
-  --font-heading: "Fraunces", Georgia, serif;
-  --font-body: "Nunito", system-ui, sans-serif;
+  --radius: 6px;
+  --radius-sm: 3px;
+  --shadow: 2px 2px 0 var(--line);
+  --font-heading: "Libre Baskerville", Georgia, serif;
+  --font-body: "Literata", Georgia, serif;
 }
 
 *,
@@ -152,7 +153,7 @@ main.container {
   color: #fff;
   background: var(--primary);
   border: 1.5px solid var(--primary);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   text-decoration: none;
   cursor: pointer;
   transition: transform 0.12s ease, background-color 0.12s ease;
@@ -267,7 +268,7 @@ main.container {
   font-weight: 700;
   color: var(--surface);
   background: var(--olive);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
 }
 
 .empty {
@@ -341,20 +342,20 @@ main.container {
 .messages li {
   padding: 0.75rem 1rem;
   margin-bottom: 0.5rem;
-  background: rgba(107, 112, 92, 0.14);  /* olive tint: stands apart from cards */
+  background: rgba(52, 73, 61, 0.14);  /* olive tint: stands apart from cards */
   border: 1.5px solid var(--olive);
   border-left-width: 6px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   font-weight: 700;
 }
 
 .messages li.error {
-  background: rgba(200, 85, 61, 0.12);
+  background: rgba(122, 46, 46, 0.12);
   border-color: var(--primary);
 }
 
 .messages li.success {
-  background: rgba(224, 164, 88, 0.2);
+  background: rgba(184, 137, 59, 0.2);
   border-color: var(--accent);
 }
 
@@ -384,7 +385,7 @@ textarea {
   color: var(--ink);
   background: var(--bg);
   border: 1.5px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
 }
 
 input[type="text"]:focus,
@@ -395,7 +396,7 @@ input[type="date"]:focus,
 textarea:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(200, 85, 61, 0.15);
+  box-shadow: 0 0 0 3px rgba(122, 46, 46, 0.15);
 }
 
 input::placeholder { color: var(--ink-soft); opacity: 0.7; }
@@ -417,8 +418,8 @@ input::placeholder { color: var(--ink-soft); opacity: 0.7; }
   font-size: 0.92rem;
   font-weight: 600;
   color: var(--primary-dk);
-  background: rgba(200, 85, 61, 0.08);
-  border-radius: 10px;
+  background: rgba(122, 46, 46, 0.08);
+  border-radius: var(--radius-sm);
 }
 
 fieldset {
@@ -507,7 +508,7 @@ textarea { resize: vertical; }
   font-weight: 600;
   background: var(--bg);
   border: 1.5px solid var(--line);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
 }
 
@@ -528,9 +529,9 @@ textarea { resize: vertical; }
 .suggestions {
   margin-top: 0.5rem;
   padding: 0.6rem 0.8rem;
-  background: rgba(224, 164, 88, 0.14);
+  background: rgba(184, 137, 59, 0.14);
   border: 1.5px solid var(--accent);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
 }
 
 .suggestions-title {
@@ -580,7 +581,7 @@ textarea { resize: vertical; }
   text-decoration: none;
   background: var(--surface);
   border: 1.5px solid var(--line);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
 }
 
 .tabs a:hover { border-color: var(--ink-soft); }
@@ -623,3 +624,57 @@ textarea { resize: vertical; }
   border-color: var(--primary);
   box-shadow: 3px 3px 0 var(--accent);
 }
+
+/* ---------- Library-book details ---------- */
+
+body { background-size: 240px 240px; }
+
+h1, h2, h3 { letter-spacing: -0.01em; }
+
+.site-header {
+  background: var(--olive);
+  border-bottom: 3px double var(--accent);
+}
+
+.brand,
+.brand:hover { color: var(--surface); }
+.brand span { color: var(--accent); }
+
+.nav a,
+.nav .link-button { color: var(--surface); }
+.nav a:hover,
+.nav .link-button:hover { color: #fff; }
+.nav-user { color: var(--line); }
+
+/* Chapter-heading rule under page titles. */
+.page-head {
+  padding-bottom: 0.6rem;
+  border-bottom: 3px double var(--line);
+}
+
+/* Cards read like book spines on a shelf. */
+.item-card,
+.feed-card {
+  border-left: 6px solid var(--olive);
+}
+
+.item-head { border-top: 6px solid var(--primary); }
+
+/* Library-stamp style labels. */
+.badge,
+.tabs a {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.btn { letter-spacing: 0.01em; }
+
+.review {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+.stat-number { font-family: var(--font-heading); }

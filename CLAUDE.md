@@ -169,40 +169,42 @@ what-now/
 
 ## 6. Tasarım Rehberi
 
-**Hedef his:** Sıcak, samimi, hafif nostaljik ama "retro oyun" değil. Defter/kâğıt hissi — kütüphane fişi, ajanda, sinema bileti koçanı. Ne parlak SaaS modernliği ne de aşırı piksel retro.
+**Hedef his:** Eski bir kütüphane ya da sahaf — yıpranmış kâğıt, ciltli kitap sırtları, yaldız, kütüphane damgası. Ağırbaşlı ama sıcak. Ne parlak SaaS modernliği ne "tatlı/pastel" görünüm ne de piksel retro. (Kasım 2026'da defter/pati teması bu temayla değiştirildi.)
 
-**Yasak:** Neon/fosforlu renkler (parlak yeşil, cyan, magenta, elektrik mavisi), glassmorphism, ağır gradyanlar, koyu siber tema.
+**Yasak:** Neon/fosforlu renkler, pastel pembe tonlar, hap şeklinde (tam yuvarlak) butonlar/rozetler, glassmorphism, ağır gradyanlar, koyu siber tema.
 
 ### Renk paleti (CSS değişkenleri olarak `:root`'ta tanımla)
 ```css
---bg:          #FBF3E4;  /* krem kâğıt */
---surface:     #FFF9EF;  /* kart zemini */
---ink:         #3D2C2E;  /* koyu kahve metin */
---ink-soft:    #7A6563;  /* ikincil metin */
---primary:     #C8553D;  /* kiremit */
---primary-dk:  #A4412D;  /* hover */
---accent:      #E0A458;  /* hardal — yıldızlar, ilerleme çubukları */
---olive:       #6B705C;  /* zeytin, rozetler */
---line:        #E6D5BC;  /* kenarlıklar */
+--bg:          #F3ECDD;  /* eskimiş kâğıt */
+--surface:     #FBF7EE;  /* sayfa */
+--ink:         #2B2A26;  /* mürekkep */
+--ink-soft:    #6B655A;  /* kurşun kalem */
+--primary:     #7A2E2E;  /* bordo cilt — butonlar, linkler */
+--primary-dk:  #5E2121;  /* hover */
+--accent:      #B8893B;  /* eski yaldız — yıldızlar, ilerleme */
+--olive:       #34493D;  /* kütüphane yeşili — header, rozetler, kitap sırtları */
+--line:        #D9CDB5;  /* kenarlıklar */
 ```
 
 ### Tipografi
-- Başlıklar: **Fraunces** (Google Fonts, serif, sıcak karakter)
-- Gövde: **Nunito** (yuvarlak, okunaklı)
+- Başlıklar: **Libre Baskerville** (Google Fonts, klasik kitap serif'i)
+- Gövde: **Literata** (e-kitaplar için tasarlanmış, okunaklı serif)
 - Taban font boyutu 17px, satır yüksekliği 1.6.
 
 ### Bileşen dili
-- Kartlar: `--surface` zemin, 1.5px `--line` kenarlık, 14px köşe yuvarlaklığı, hafif ofset gölge (`3px 3px 0 var(--line)`) — "kâğıt üstüne yapıştırılmış not" hissi.
-- Butonlar: dolu `--primary`, yuvarlak köşe, hover'da hafif yukarı kayma (1px). Abartılı animasyon yok. "Ben de ekleyeyim" ikincil (kenarlıklı) buton.
-- Rozetler: Film / Kitap ve durumlar `--olive` zeminli küçük etiketler.
-- Yıldızlar: `--accent` dolu, `--line` boş; puan girişi radyo butonlarıyla (JS'siz çalışmalı).
-- İlerleme çubukları: `--accent` dolgu, hedefe ulaşan `--primary` + "Tamamlandı" rozeti.
+- Header: kütüphane yeşili zemin, krem yazı, altında yaldız rengi çift çizgi; logodaki "?" yaldız.
+- Sayfa başlıkları altında "bölüm başlığı" gibi çift çizgi (`3px double var(--line)`).
+- Kartlar: `--surface` zemin, 1.5px `--line` kenarlık, 6px köşe, hafif ofset gölge (`2px 2px 0 var(--line)`). Öğe/akış kartlarının solunda 6px yeşil **kitap sırtı** şeridi; öğe sayfasının üstünde bordo şerit.
+- Butonlar: dolu `--primary`, 3px köşe (hap şekli yok), hover'da 1px yukarı kayma. "Ben de ekleyeyim" ikincil (kenarlıklı) buton.
+- Rozetler ve sekmeler: **kütüphane damgası** gibi küçük, büyük harf, harf aralıklı etiketler; `--olive` zemin.
+- Yorumlar: başlık fontuyla, yaldız sol çizgili alıntı.
+- Yıldızlar ve ilerleme çubukları: `--accent`.
 - Mobil öncelikli; 640px üstünde içerik maksimum 720px genişlikte ortalanır.
 
 ### Arka plan deseni
-- `static/img/pattern.svg` içinde **özgün**, küçük, el çizimi tarzı doodle'lar (mevcut: pati izi, kemik, yıldız, kalp; istenirse minik kitap ve film şeridi eklenebilir).
-- Tekrarlayan desen, opaklık düşük (~%8–10), renk `--ink-soft`. Okunabilirliği asla bozmamalı.
-- Telifli karakterler, film afişleri veya kitap kapakları **kullanılmaz**; desen tamamen özgün olmalı.
+- `static/img/pattern.svg` (240×240): **özgün**, el çizimi tarzı çizgi doodle'lar — açık kitap, kitap yığını, ayraç, film makarası, kurşun kalem, küçük noktalar. Tüm şekiller karonun içinde kalır (kesintisiz tekrar).
+- Opaklık ~%10, renk `--ink-soft`. Okunabilirliği asla bozmamalı.
+- Telifli karakterler, film afişleri veya kitap kapakları **kullanılmaz**.
 
 ---
 
