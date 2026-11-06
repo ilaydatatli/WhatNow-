@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}{{ entry.item.title }} · Rafım · What now?{% endblock %}
+
+{% block content %}
+  <h1>{{ entry.item.title }}</h1>
+  <p class="lead">{{ entry.item.creator }} · {{ entry.item.year }}</p>
+
+  <form method="post" class="card form-card" novalidate data-entry-form>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-block">Kaydet</button>
+    <p class="form-footer">
+      <a href="{{ entry.item.get_absolute_url }}">Vazgeç</a> ·
+      <a href="{% url 'shelf:entry_remove' entry.pk %}">Rafımdan kaldır</a>
+    </p>
+  </form>
+{% endblock %}

@@ -1,68 +1,48 @@
 {% extends "base.html" %}
-{% load poll_extras %}
+{% load shelf_extras %}
 
-{% block title %}Profilim · What now?{% endblock %}
+{% block title %}Rafım · What now?{% endblock %}
 
 {% block content %}
   <div class="page-head">
     <h1>@{{ user.username }}</h1>
-    <a class="btn" href="{% url 'polls:create' %}">+ Soru sor</a>
+    <a class="btn" href="{% url 'shelf:item_create' %}">+ Film / kitap ekle</a>
   </div>
 
-  <div class="stats">
-    <div class="card stat">
-      <span class="stat-number">{{ polls|length }}</span>
-      <span class="stat-label">açtığım anket</span>
-    </div>
-    <div class="card stat">
-      <span class="stat-number">{{ votes|length }}</span>
-      <span class="stat-label">oy verdiğim anket</span>
-    </div>
+  <div class="stats stats-3">
+    {% for status, label, entries in sections %}
+      <a class="card stat" href="#{{ status }}">
+        <span class="stat-number">{{ entries|length }}</span>
+        <span class="stat-label">{{ label }}</span>
+      </a>
+    {% endfor %}
   </div>
 
-  <h2>Anketlerim</h2>
-
-  {% if polls %}
-    <ul class="poll-list">
-      {% for poll in polls %}
-        <li class="card poll-card">
-          <h2><a href="{% url 'polls:detail' poll.pk %}">{{ poll.question }}</a></h2>
-          <p class="meta">
-            <span>{{ poll.vote_count }} oy</span>
-            <span>·</span>
-            <span>{{ poll.created_at|ago }}</span>
-            <a class="card-action" href="{% url 'polls:delete' poll.pk %}">Sil</a>
-          </p>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
+  {% if not total %}
     <div class="card empty">
-      <p>Henüz anket açmadın — ilk soruyu sen sor!</p>
-      <a class="btn" href="{% url 'polls:create' %}">Anket aç</a>
+      <p>Rafın boş — ilk filmini ya da kitabını ekle!</p>
+      <a class="btn" href="{% url 'shelf:item_create' %}">Film / kitap ekle</a>
     </div>
   {% endif %}
 
-  <h2>Oy verdiklerim</h2>
-
-  {% if votes %}
-    <ul class="poll-list">
-      {% for vote in votes %}
-        <li class="card poll-card">
-          <h2><a href="{% url 'polls:detail' vote.poll.pk %}">{{ vote.poll.question }}</a></h2>
-          <p class="meta">
-            <span class="badge">@{{ vote.poll.author.username }}</span>
-            <span>Seçimin: <strong>{{ vote.option.text }}</strong></span>
-            <span>·</span>
-            <span>{{ vote.created_at|ago }}</span>
-          </p>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <div class="card empty">
-      <p>Henüz hiçbir ankete oy vermedin.</p>
-      <a class="btn" href="{% url 'polls:list' %}">Anketlere göz at</a>
-    </div>
-  {% endif %}
+  {% for status, label, entries in sections %}
+    {% if entries %}
+      <h2 id="{{ status }}">{{ label }}</h2>
+      <ul class="card-list">
+        {% for entry in entries %}
+          {% with item=entry.item %}
+            <li class="card item-card">
+              {% include "shelf/_item_heading.html" %}
+              <p class="meta">
+                {% if entry.rating %}<span class="stars">{{ entry.rating|stars }}</span>{% endif %}
+                {% if entry.finished_at %}<span>{{ entry.finished_at|date:"j F Y" }}</span>{% else %}<span>{{ entry.updated_at|ago }}</span>{% endif %}
+                <a class="card-action" href="{% url 'shelf:entry_edit' entry.pk %}">Düzenle</a>
+              </p>
+              {% if entry.review %}<blockquote class="review">“{{ entry.review }}”</blockquote>{% endif %}
+            </li>
+          {% endwith %}
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endfor %}
 {% endblock %}

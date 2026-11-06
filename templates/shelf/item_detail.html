@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load shelf_extras %}
+
+{% block title %}{{ item.title }} · What now?{% endblock %}
+
+{% block content %}
+  <article class="card item-head">
+    <p class="meta"><span class="badge">{{ item.get_kind_display }}</span>{% if item.genre %}<span>{{ item.genre }}</span>{% endif %}</p>
+    <h1>{{ item.title }}</h1>
+    <p class="item-sub">{{ item.creator }} · {{ item.year }}</p>
+
+    <p class="meta">
+      {% if item.rating_count %}
+        <span class="stars" aria-label="5 üzerinden {{ item.avg_rating|floatformat:1 }}">{{ item.avg_rating|stars }}</span>
+        <span>{{ item.avg_rating|floatformat:1 }} ({{ item.rating_count }} puan)</span>
+        <span>·</span>
+      {% endif %}
+      <span>{{ item.shelf_count }} kişinin rafında</span>
+      {% if item.added_by %}<span>·</span><span>@{{ item.added_by.username }} ekledi</span>{% endif %}
+    </p>
+
+    <div class="item-actions">
+      {% if my_entry %}
+        <span class="badge badge-soft">Rafında: {% status_label my_entry.status item.kind %}{% if my_entry.rating %} · {{ my_entry.rating|stars }}{% endif %}</span>
+        <a class="btn btn-ghost btn-small" href="{% url 'shelf:entry_edit' my_entry.pk %}">Durumu güncelle</a>
+      {% elif user.is_authenticated %}
+        <form method="post" action="{% url 'shelf:item_add' item.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn">+ Rafıma ekle</button>
+        </form>
+      {% else %}
+        <a class="btn" href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}">Rafına eklemek için giriş yap</a>
+      {% endif %}
+    </div>
+
+    {% if my_entry.review %}
+      <blockquote class="review">“{{ my_entry.review }}”</blockquote>
+    {% endif %}
+  </article>
+
+  <a class="back-link" href="{% url 'shelf:home' %}">← Ana sayfaya dön</a>
+{% endblock %}

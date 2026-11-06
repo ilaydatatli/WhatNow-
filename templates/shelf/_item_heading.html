@@ -1,0 +1,7 @@
+{# Card title for an item; the whole card is clickable through the title link. #}
+<h2><a href="{{ item.get_absolute_url }}">{{ item.title }}</a></h2>
+<p class="meta">
+  <span class="badge">{{ item.get_kind_display }}</span>
+  <span>{{ item.creator }} · {{ item.year }}</span>
+  {% if item.genre %}<span>· {{ item.genre }}</span>{% endif %}
+</p>

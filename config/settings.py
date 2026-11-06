@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Local apps
     "accounts",
-    "polls",
+    "shelf",
+    "polls",  # temporary: drops old poll tables (CLAUDE.md section 8)
 ]
 
 MIDDLEWARE = [
@@ -66,7 +67,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "polls.middleware.VoterTokenMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"

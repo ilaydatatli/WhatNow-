@@ -13,11 +13,11 @@
 <body>
   <header class="site-header">
     <div class="container">
-      <a class="brand" href="{% url 'polls:list' %}">What now<span>?</span></a>
+      <a class="brand" href="{% url 'shelf:home' %}">What now<span>?</span></a>
       <nav class="nav">
-        <a href="{% url 'polls:create' %}">Anket aç</a>
+        <a href="{% url 'shelf:item_create' %}">+ Ekle</a>
         {% if user.is_authenticated %}
-          <a class="nav-user" href="{% url 'accounts:profile' %}">@{{ user.username }}</a>
+          <a class="nav-user" href="{% url 'accounts:profile' %}">Rafım · @{{ user.username }}</a>
           <form method="post" action="{% url 'accounts:logout' %}">
             {% csrf_token %}
             <button type="submit" class="link-button">Çıkış yap</button>

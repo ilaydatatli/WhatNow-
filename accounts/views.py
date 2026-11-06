@@ -1,12 +1,11 @@
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count
 from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 
-from polls.models import Poll, Vote
+from shelf.models import ShelfEntry
 
 from .forms import LoginForm, SignupForm
 
@@ -44,7 +43,13 @@ class EmailLoginView(LoginView):
 
 @login_required
 def profile(request):
-    polls = Poll.objects.filter(author=request.user).annotate(vote_count=Count("votes")).order_by("-created_at")
-    votes = Vote.objects.filter(user=request.user).select_related("poll","option", "poll__author").order_by("-created_at")
-    return render(request, "accounts/profile.html", {"polls": polls, "votes": votes})
-
+    entries = list(request.user.shelf.select_related("item"))
+    sections = [
+        (status, label, [entry for entry in entries if entry.status == status])
+        for status, label in (
+            (ShelfEntry.Status.CURRENT, "Şu an"),
+            (ShelfEntry.Status.DONE, "Bitti"),
+            (ShelfEntry.Status.WANT, "İzleyeceğim / Okuyacağım"),
+        )
+    ]
+    return render(request, "accounts/profile.html", {"sections": sections, "total": len(entries)})

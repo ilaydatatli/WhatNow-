@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Film / kitap ekle · What now?{% endblock %}
+
+{% block content %}
+  <h1>Rafına ekle</h1>
+  <p class="lead">Film ya da kitap bilgilerini gir. Zaten kayıtlıysa yenisini açmadan seni ona götürürüz.</p>
+
+  <form method="post" class="card form-card" novalidate
+        data-item-search="{% url 'shelf:item_search' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-block">Rafıma ekle</button>
+  </form>
+{% endblock %}

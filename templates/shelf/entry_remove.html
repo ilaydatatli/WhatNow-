@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Raftan kaldır · What now?{% endblock %}
+
+{% block content %}
+  <h1>Raftan kaldır</h1>
+
+  <form method="post" class="card form-card">
+    {% csrf_token %}
+    <p>“{{ entry.item.title }}” rafından kaldırılsın mı? Puanın ve yorumun da silinir.</p>
+    <div class="delete-actions">
+      <button type="submit" class="btn">Evet, kaldır</button>
+      <a class="btn btn-ghost" href="{% url 'shelf:entry_edit' entry.pk %}">Vazgeç</a>
+    </div>
+  </form>
+{% endblock %}
