@@ -6,15 +6,24 @@
   <title>{% block title %}What now?{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&display=swap">
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
   <script src="{% static 'js/main.js' %}" defer></script>
 </head>
 <body>
   <header class="site-header">
     <div class="container">
-      <a class="brand" href="{% url 'shelf:feed' %}">What now<span>?</span></a>
+      <a class="brand" href="{% url 'shelf:feed' %}">
+        <svg class="brand-nib" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M16 3c4.5 4.5 7 9.5 7 14l-4 6h-6l-4-6c0-4.5 2.5-9.5 7-14z"/>
+          <path d="M16 3v12"/>
+          <circle cx="16" cy="16.5" r="1.6" fill="currentColor"/>
+          <path d="M13 23v3.5h6V23M14 29h4"/>
+        </svg>
+        <span class="brand-text">What now<span>?</span></span>
+      </a>
       <nav class="nav">
+        <a href="{% url 'shelf:top' %}">Top 10</a>
         <a href="{% url 'shelf:item_create' %}">+ Ekle</a>
         {% if user.is_authenticated %}
           <a class="nav-user" href="{% url 'accounts:profile' %}">Rafım · @{{ user.username }}</a>

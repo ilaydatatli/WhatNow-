@@ -6,6 +6,8 @@ app_name = "shelf"
 
 urlpatterns = [
     path("", views.feed, name="feed"),
+    path("top/", views.top, name="top"),
+    path("quiz/", views.quiz, name="quiz"),
     path("items/new/", views.item_create, name="item_create"),
     path("items/search/", views.item_search, name="item_search"),
     path("items/<int:pk>/", views.item_detail, name="item_detail"),

@@ -1,0 +1,18 @@
+{# Corner icon telling films and books apart: a book or a movie camera (original line drawings). #}
+<span class="kind-icon kind-{{ item.kind }}" title="{{ item.get_kind_display }}" aria-hidden="true">
+  {% if item.kind == "book" %}
+    <svg viewBox="0 0 32 32" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M7 5.5h17a1.5 1.5 0 0 1 1.5 1.5v20.5H9a2.5 2.5 0 0 1-2.5-2.5V8a2.5 2.5 0 0 1 2.5-2.5z"/>
+      <path d="M6.5 25a2.5 2.5 0 0 1 2.5-2.5h16.5"/>
+      <path d="M12 5.5v9l2.5-2 2.5 2v-9"/>
+    </svg>
+  {% else %}
+    <svg viewBox="0 0 32 32" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="9.5" cy="8.5" r="4"/>
+      <circle cx="19" cy="8" r="4.5"/>
+      <rect x="4" y="13.5" width="19" height="11" rx="1.5"/>
+      <path d="M23 17l5-3v10l-5-3"/>
+      <path d="M10 24.5l-2.5 4M17 24.5l2.5 4"/>
+    </svg>
+  {% endif %}
+</span>

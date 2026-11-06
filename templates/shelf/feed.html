@@ -7,6 +7,14 @@
     <a class="btn" href="{% url 'shelf:item_create' %}">+ Film / kitap ekle</a>
   </div>
 
+  <details class="quiz card" data-quiz="{% url 'shelf:quiz' %}" open hidden>
+    <summary>✒ Mini quiz</summary>
+    <p class="quiz-question" data-quiz-question></p>
+    <div class="quiz-options" data-quiz-options></div>
+    <p class="quiz-result" data-quiz-result aria-live="polite"></p>
+    <button type="button" class="link-button" data-quiz-next>Başka soru →</button>
+  </details>
+
   <nav class="tabs" aria-label="Türe göre filtrele">
     <a href="{% url 'shelf:feed' %}" {% if not kind %}aria-current="page"{% endif %}>Hepsi</a>
     {% for value, label in kinds %}
@@ -19,6 +27,7 @@
       {% for entry in page %}
         {% with item=entry.item %}
           <li class="card feed-card">
+            {% include "shelf/_kind_icon.html" %}
             <p class="feed-line">
               {% include "shelf/_user_link.html" with person=entry.user %}
               <span class="feed-verb status-{{ entry.status }}">{{ entry.activity_verb }}</span>

@@ -117,3 +117,58 @@ document.querySelectorAll("[data-item-search]").forEach((form) => {
     }, 250);
   });
 });
+
+// Feed corner quiz: fetches a question built from the catalog and checks the answer in place.
+document.querySelectorAll("[data-quiz]").forEach((box) => {
+  const questionEl = box.querySelector("[data-quiz-question]");
+  const optionsEl = box.querySelector("[data-quiz-options]");
+  const resultEl = box.querySelector("[data-quiz-result]");
+  const nextButton = box.querySelector("[data-quiz-next]");
+
+  function show(data) {
+    questionEl.textContent = data.question;
+    resultEl.replaceChildren();
+    optionsEl.replaceChildren(
+      ...data.options.map((option) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "quiz-option";
+        button.textContent = option;
+        button.addEventListener("click", () => answer(button, option, data));
+        return button;
+      })
+    );
+  }
+
+  function answer(chosen, option, data) {
+    optionsEl.querySelectorAll("button").forEach((button) => {
+      button.disabled = true;
+      if (button.textContent === data.answer) button.classList.add("is-right");
+    });
+    const right = option === data.answer;
+    if (!right) chosen.classList.add("is-wrong");
+
+    const link = document.createElement("a");
+    link.href = data.item_url;
+    link.textContent = data.item_title;
+    resultEl.append(right ? "Bildin! " : `Doğrusu: ${data.answer}. `, link, " →");
+  }
+
+  async function load() {
+    try {
+      const response = await fetch(box.dataset.quiz);
+      const data = (await response.json()).question;
+      if (!data) return; // empty catalog: keep the quiz hidden
+      show(data);
+      box.hidden = false;
+    } catch (error) {
+      box.hidden = true;
+    }
+  }
+
+  // On narrow screens the quiz sits inside the feed, so start it folded.
+  if (window.matchMedia("(max-width: 1299px)").matches) box.open = false;
+
+  nextButton.addEventListener("click", load);
+  load();
+});

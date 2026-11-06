@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load shelf_extras %}
+
+{% block title %}Top 10 · What now?{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>Top 10</h1>
+  </div>
+  <p class="lead">Topluluğun en yüksek puan verdiği kitaplar ve filmler. Puanlar eşitse daha çok kişinin puanladığı öne geçer.</p>
+
+  <div class="top-grid">
+    {% for label, kind, items in lists %}
+      <section class="card top-list top-{{ kind }}">
+        <h2 class="top-title">En iyi 10 {{ label|lower }}</h2>
+        {% if items %}
+          <ol>
+            {% for item in items %}
+              <li>
+                <a href="{{ item.get_absolute_url }}">{{ item.title }}</a>
+                <span class="meta-soft">{{ item.creator }} · {{ item.year }}</span>
+                <span class="top-score">
+                  <span class="stars">{{ item.avg_rating|stars }}</span>
+                  {{ item.avg_rating|floatformat:1 }} <span class="meta-soft">({{ item.rating_count }})</span>
+                </span>
+              </li>
+            {% endfor %}
+          </ol>
+        {% else %}
+          <p class="meta-soft">Henüz puanlanmış {{ label|lower }} yok. {% if kind == "book" %}Bitirdiğin bir kitaba{% else %}İzlediğin bir filme{% endif %} yıldız ver, listeyi sen başlat!</p>
+        {% endif %}
+      </section>
+    {% endfor %}
+  </div>
+{% endblock %}

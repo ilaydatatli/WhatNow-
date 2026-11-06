@@ -145,6 +145,8 @@ what-now/
 | URL | Erişim | Açıklama |
 |---|---|---|
 | `/` | Herkes | **Akış.** Son güncellenen `ShelfEntry`'ler (`-updated_at`, sayfa başı 20). Kart metni duruma göre: "X, *Y*'yi rafına ekledi" / "X şu an *Y*'yi okuyor/izliyor" / "X, *Y*'yi bitirdi ★★★★☆ — yorum". Her kartta "Ben de ekleyeyim" (girişliyse ve rafında yoksa). Üstte Film / Kitap / Hepsi filtresi (`?kind=`). |
+| `/top/` | Herkes | Top 10 kitap ve Top 10 film: ortalama yıldıza göre (eşitlikte daha çok puan alan önde); en az 1 puan almış öğeler. Navbar'da "Top 10". |
+| `/quiz/` | Herkes (JSON) | Mini quiz sorusu: katalogdan rastgele öğe → "Kim yazdı/yönetti?" (aynı türden 2 yanlış şık) ya da "Hangi yıl?". Akışta köşede gösterilir (≥1300px sağ boşlukta sabit, dar ekranda akışın üstünde kapalı `<details>`). Cevap JSON'da gelir; sadece eğlence. Veritabanı tablosu yok. |
 | `/items/new/` | Giriş | Öğe ekleme: tür, başlık, yazar/yönetmen, yıl, tür (genre) + kendi rafın için durum. Öğe zaten varsa mevcut öğeye yönlendirir ve rafa ekler. |
 | `/items/<id>/` | Herkes | Öğe sayfası: bilgiler, ortalama puan, rafına ekleyen sayısı, yorumlar (bitirenlerin yıldız + yorumları), bu öğeyi içeren listeler. Girişliyse: "Rafıma ekle" ya da kendi kaydını düzenleme bağlantısı; "Listeye ekle". |
 | `/items/<id>/add/` | Giriş (POST) | "Ben de ekleyeyim": `want` durumunda `ShelfEntry` oluşturur (varsa dokunmaz). `next`'e döner. |
@@ -175,24 +177,26 @@ what-now/
 
 ### Renk paleti (CSS değişkenleri olarak `:root`'ta tanımla)
 ```css
---bg:          #F3ECDD;  /* eskimiş kâğıt */
---surface:     #FBF7EE;  /* sayfa */
+--bg:          #EFD2AC;  /* sıcak, turuncumsu kâğıt */
+--surface:     #FCF6EC;  /* sayfa */
 --ink:         #2B2A26;  /* mürekkep */
 --ink-soft:    #6B655A;  /* kurşun kalem */
 --primary:     #7A2E2E;  /* bordo cilt — butonlar, linkler */
 --primary-dk:  #5E2121;  /* hover */
 --accent:      #B8893B;  /* eski yaldız — yıldızlar, ilerleme */
 --olive:       #34493D;  /* kütüphane yeşili — header, rozetler, kitap sırtları */
---line:        #D9CDB5;  /* kenarlıklar */
+--line:        #DDBF97;  /* kenarlıklar */
 ```
 
 ### Tipografi
 - Başlıklar: **Libre Baskerville** (Google Fonts, klasik kitap serif'i)
 - Gövde: **Literata** (e-kitaplar için tasarlanmış, okunaklı serif)
+- Dolma kalem el yazısı: **Pinyon Script** — yalnızca logo, sayfa başlıkları (`.page-head h1`, `main > h1`) ve quiz başlığı. Kart/öğe başlıkları okunaklı kalsın diye Baskerville.
 - Taban font boyutu 17px, satır yüksekliği 1.6.
 
 ### Bileşen dili
-- Header: kütüphane yeşili zemin, krem yazı, altında yaldız rengi çift çizgi; logodaki "?" yaldız.
+- Header: kütüphane yeşili zemin, krem yazı, altında yaldız rengi çift çizgi. Logo: yaldız renkli, özgün dolma kalem ucu SVG'si + "What now?" ("?" yaldız).
+- Film/kitap ayrımı: kartların sağ üst köşesinde yuvarlak zeminli çizgi ikon (`templates/shelf/_kind_icon.html`) — kitap: ayraçlı kitap (yeşil), film: makaralı kamera (bordo).
 - Sayfa başlıkları altında "bölüm başlığı" gibi çift çizgi (`3px double var(--line)`).
 - Kartlar: `--surface` zemin, 1.5px `--line` kenarlık, 6px köşe, hafif ofset gölge (`2px 2px 0 var(--line)`). Öğe/akış kartlarının solunda 6px yeşil **kitap sırtı** şeridi; öğe sayfasının üstünde bordo şerit.
 - Butonlar: dolu `--primary`, 3px köşe (hap şekli yok), hover'da 1px yukarı kayma. "Ben de ekleyeyim" ikincil (kenarlıklı) buton.
@@ -216,7 +220,7 @@ what-now/
 - Form doğrulaması **sunucu tarafında** yapılır; JS yalnızca kolaylık sağlar.
 - Sahiplik kontrolü view'da: başkasının kaydı/listesi için 404 döndür.
 - Sorgularda N+1'den kaçın (`select_related`, `prefetch_related`, `annotate(Count(...))`).
-- Her faz sonunda: `python manage.py check`, `makemigrations --check`, `python manage.py test`, kısa bir manuel test listesi.
+- Her faz sonunda: `python manage.py check`, `makemigrations --check`, `DATABASE_URL= python manage.py test` (boş `DATABASE_URL` testlerin `.env`'deki canlı veritabanına gitmesini önler), kısa bir manuel test listesi.
 - Her faz bitince yapılanları ve kullanıcının yapması gerekenleri kısaca özetle; bir sonraki faza kendiliğinden geçme.
 - **Canlı Supabase veritabanına migration** ve **commit/push** yalnızca kullanıcı onayıyla.
 

@@ -286,3 +286,59 @@ class ItemSearchTests(ShelfTestCase):
         self.login(self.mert)
         self.client.post(reverse("shelf:item_add", args=[self.dune.pk]), {"status": "hacked"})
         self.assertEqual(self.mert.shelf.get(item=self.dune).status, ShelfEntry.Status.WANT)
+
+
+class QuizTests(ShelfTestCase):
+    def get(self):
+        return self.client.get(reverse("shelf:quiz")).json()["question"]
+
+    def test_empty_catalog_has_no_question(self):
+        self.assertIsNone(self.get())
+
+    def test_year_question_when_too_few_creators(self):
+        Item.objects.create(kind="book", title="Dune", creator="Frank Herbert", year=1965)
+        for _ in range(10):
+            question = self.get()
+            self.assertIn("“Dune”", question["question"])
+            self.assertEqual(question["answer"], "1965")
+            self.assertEqual(len(set(question["options"])), 3)
+            self.assertIn("1965", question["options"])
+
+    def test_creator_question_uses_same_kind_and_valid_answer(self):
+        for title, creator in [("Dune", "Frank Herbert"), ("Kürk Mantolu Madonna", "Sabahattin Ali"),
+                               ("Tutunamayanlar", "Oğuz Atay")]:
+            Item.objects.create(kind="book", title=title, creator=creator, year=1960)
+        Item.objects.create(kind="film", title="Amélie", creator="Jean-Pierre Jeunet", year=2001)
+        seen_creator_question = False
+        for _ in range(40):
+            question = self.get()
+            self.assertIn(question["answer"], question["options"])
+            self.assertEqual(len(set(question["options"])), 3)
+            if "kim yazdı" in question["question"]:
+                seen_creator_question = True
+                self.assertNotIn("Jean-Pierre Jeunet", question["options"])
+        self.assertTrue(seen_creator_question)
+
+
+class TopTests(ShelfTestCase):
+    def test_ranked_by_average_then_count_and_split_by_kind(self):
+        a = Item.objects.create(kind="book", title="A Kitabı", creator="Yazar", year=2000)
+        b = Item.objects.create(kind="book", title="B Kitabı", creator="Yazar", year=2000)
+        c = Item.objects.create(kind="book", title="C Kitabı", creator="Yazar", year=2000)
+        unrated = Item.objects.create(kind="book", title="Puansız", creator="Yazar", year=2000)
+        film = Item.objects.create(kind="film", title="Bir Film", creator="Yönetmen", year=2000)
+        ShelfEntry.objects.create(user=self.ayse, item=a, status="done", rating=4)
+        ShelfEntry.objects.create(user=self.ayse, item=b, status="done", rating=5)
+        ShelfEntry.objects.create(user=self.mert, item=b, status="done", rating=5)
+        ShelfEntry.objects.create(user=self.ayse, item=c, status="done", rating=5)
+        ShelfEntry.objects.create(user=self.ayse, item=unrated, status="current")
+        ShelfEntry.objects.create(user=self.ayse, item=film, status="done", rating=3)
+
+        response = self.client.get(reverse("shelf:top"))
+        lists = {kind: list(items) for _, kind, items in response.context["lists"]}
+        self.assertEqual(lists["book"], [b, c, a])  # b and c tie at 5.0; b has more ratings
+        self.assertEqual(lists["film"], [film])
+
+    def test_empty_state(self):
+        response = self.client.get(reverse("shelf:top"))
+        self.assertContains(response, "Henüz puanlanmış kitap yok")

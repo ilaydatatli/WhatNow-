@@ -5,6 +5,7 @@
 
 {% block content %}
   <article class="card item-head">
+    {% include "shelf/_kind_icon.html" %}
     <p class="meta"><span class="badge">{{ item.get_kind_display }}</span>{% if item.genre %}<span>{{ item.genre }}</span>{% endif %}</p>
     <h1>{{ item.title }}</h1>
     <p class="item-sub">{{ item.creator }} · {{ item.year }}</p>

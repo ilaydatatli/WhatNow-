@@ -13,10 +13,12 @@ from accounts.models import User
 
 from .forms import ItemForm, ShelfEntryForm
 from .models import Item, ShelfEntry
+from .quiz import make_question
 
 PAGE_SIZE = 20
 SEARCH_MIN_LENGTH = 3
 SEARCH_LIMIT = 8
+TOP_SIZE = 10
 
 
 def _safe_next(request, fallback):
@@ -107,6 +109,28 @@ def item_search(request):
             ]
         }
     )
+
+
+def top(request):
+    """Top 10 books and films by average star rating (ties: more ratings first)."""
+    rated = (
+        Item.objects.annotate(
+            avg_rating=Avg("entries__rating"),
+            rating_count=Count("entries", filter=Q(entries__rating__isnull=False)),
+        )
+        .filter(rating_count__gt=0)
+        .order_by("-avg_rating", "-rating_count", "title")
+    )
+    lists = [
+        ("Kitap", "book", rated.filter(kind=Item.Kind.BOOK)[:TOP_SIZE]),
+        ("Film", "film", rated.filter(kind=Item.Kind.FILM)[:TOP_SIZE]),
+    ]
+    return render(request, "shelf/top.html", {"lists": lists})
+
+
+def quiz(request):
+    """One random quiz question as JSON (the answer is included; it is just for fun)."""
+    return JsonResponse({"question": make_question()})
 
 
 def item_detail(request, pk):

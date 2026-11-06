@@ -1,21 +1,22 @@
 /* What now? — "library book" theme. See CLAUDE.md section 6. */
 
 :root {
-  --bg:          #F3ECDD;  /* aged paper */
-  --surface:     #FBF7EE;  /* page */
+  --bg:          #EFD2AC;  /* warm apricot paper */
+  --surface:     #FCF6EC;  /* page */
   --ink:         #2B2A26;  /* ink */
   --ink-soft:    #6B655A;  /* pencil */
   --primary:     #7A2E2E;  /* oxblood binding */
   --primary-dk:  #5E2121;  /* hover */
   --accent:      #B8893B;  /* antique gilt — stars, progress */
   --olive:       #34493D;  /* library green — header, badges, spines */
-  --line:        #D9CDB5;  /* borders */
+  --line:        #DDBF97;  /* borders */
 
   --radius: 6px;
   --radius-sm: 3px;
   --shadow: 2px 2px 0 var(--line);
   --font-heading: "Libre Baskerville", Georgia, serif;
   --font-body: "Literata", Georgia, serif;
+  --font-script: "Pinyon Script", "Snell Roundhand", cursive;  /* fountain-pen titles */
 }
 
 *,
@@ -122,7 +123,7 @@ main.container {
   text-decoration: none;
 }
 
-.brand span { color: var(--primary); }
+.brand-text > span { color: var(--primary); }
 .brand:hover { color: var(--ink); }
 
 .nav {
@@ -638,7 +639,7 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 
 .brand,
 .brand:hover { color: var(--surface); }
-.brand span { color: var(--accent); }
+.brand-text > span { color: var(--accent); }
 
 .nav a,
 .nav .link-button { color: var(--surface); }
@@ -678,3 +679,168 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 }
 
 .stat-number { font-family: var(--font-heading); }
+
+/* ---------- Corner quiz ---------- */
+
+.quiz {
+  padding: 0.8rem 1rem;
+  font-size: 0.92rem;
+  border-top: 4px solid var(--accent);
+}
+
+.quiz[hidden] { display: none; }
+
+.quiz summary {
+  font-family: var(--font-script);
+  font-size: 1.6rem;
+  line-height: 1.2;
+  color: var(--primary);
+  cursor: pointer;
+}
+
+.quiz-question {
+  margin: 0.5rem 0 0.6rem;
+  font-weight: 600;
+}
+
+.quiz-options {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.quiz-option {
+  padding: 0.4rem 0.7rem;
+  font: inherit;
+  text-align: left;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.quiz-option:hover:not(:disabled) { border-color: var(--ink-soft); }
+.quiz-option:disabled { cursor: default; }
+.quiz-option.is-right { color: var(--surface); background: var(--olive); border-color: var(--olive); }
+.quiz-option.is-wrong { color: var(--surface); background: var(--primary); border-color: var(--primary); }
+
+.quiz-result {
+  min-height: 1.2em;
+  margin: 0.6rem 0 0.3rem;
+  font-weight: 600;
+}
+
+/* Wide screens: the quiz floats in the right margin, beside the feed. */
+@media (min-width: 1300px) {
+  .quiz {
+    position: fixed;
+    top: 130px;
+    left: calc(50% + 360px + 24px);
+    width: 250px;
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+    margin: 0;
+    z-index: 5;
+  }
+}
+
+/* ---------- Fountain-pen titles ---------- */
+
+.brand,
+.page-head h1,
+main.container > h1 {
+  font-family: var(--font-script);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.brand { font-size: 2rem; line-height: 1.1; }
+
+.page-head h1,
+main.container > h1 {
+  font-size: 2.6rem;
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+@media (min-width: 640px) {
+  .page-head h1,
+  main.container > h1 { font-size: 3rem; }
+}
+
+/* ---------- Kind icon (book / movie camera) ---------- */
+
+.item-card,
+.feed-card,
+.item-head { position: relative; }
+
+.kind-icon {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.85rem;
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.kind-icon svg { width: 1.5rem; height: 1.5rem; }
+.kind-book { color: var(--olive); background: rgba(52, 73, 61, 0.1); }
+.kind-film { color: var(--primary); background: rgba(122, 46, 46, 0.1); }
+
+/* Keep titles clear of the corner icon. */
+.item-card h2,
+.feed-card .feed-line,
+.feed-card h2,
+.item-head > .meta:first-of-type { padding-right: 2.8rem; }
+
+/* ---------- Logo ---------- */
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.brand-nib {
+  width: 1.9rem;
+  height: 1.9rem;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* ---------- Top 10 ---------- */
+
+.top-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .top-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.top-list { margin: 0; }
+.top-book { border-top: 6px solid var(--olive); }
+.top-film { border-top: 6px solid var(--primary); }
+
+.top-title { font-size: 1.15rem; }
+
+.top-list ol {
+  margin: 0;
+  padding-left: 1.6rem;
+}
+
+.top-list li {
+  padding: 0.45rem 0;
+  border-bottom: 1px dashed var(--line);
+}
+
+.top-list li:last-child { border-bottom: 0; }
+.top-list li::marker { font-family: var(--font-heading); font-weight: 700; color: var(--accent); }
+.top-list a { display: block; font-weight: 700; }
+.top-list .meta-soft { display: block; font-size: 0.85rem; }
+.top-score { display: block; font-size: 0.88rem; }
+.top-score .meta-soft { display: inline; }
