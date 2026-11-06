@@ -166,9 +166,6 @@ document.querySelectorAll("[data-quiz]").forEach((box) => {
     }
   }
 
-  // On narrow screens the quiz sits inside the feed, so start it folded.
-  if (window.matchMedia("(max-width: 1299px)").matches) box.open = false;
-
   nextButton.addEventListener("click", load);
   load();
 });

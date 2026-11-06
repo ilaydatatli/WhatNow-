@@ -1,20 +1,27 @@
 {% extends "base.html" %}
 {% load shelf_extras %}
 
+{% block main_class %}container-wide{% endblock %}
+
 {% block content %}
   <div class="page-head">
     <h1>Akış</h1>
     <a class="btn" href="{% url 'shelf:item_create' %}">+ Film / kitap ekle</a>
   </div>
 
-  <details class="quiz card" data-quiz="{% url 'shelf:quiz' %}" open hidden>
-    <summary>✒ Mini quiz</summary>
-    <p class="quiz-question" data-quiz-question></p>
-    <div class="quiz-options" data-quiz-options></div>
-    <p class="quiz-result" data-quiz-result aria-live="polite"></p>
-    <button type="button" class="link-button" data-quiz-next>Başka soru →</button>
-  </details>
 
+  <div class="feed-layout">
+  <aside class="feed-side">
+    <section class="quiz card" data-quiz="{% url 'shelf:quiz' %}" hidden>
+      <h2 class="quiz-title">✒ Mini quiz</h2>
+      <p class="quiz-question" data-quiz-question></p>
+      <div class="quiz-options" data-quiz-options></div>
+      <p class="quiz-result" data-quiz-result aria-live="polite"></p>
+      <button type="button" class="link-button" data-quiz-next>Başka soru →</button>
+    </section>
+  </aside>
+
+  <div class="feed-main">
   <nav class="tabs" aria-label="Türe göre filtrele">
     <a href="{% url 'shelf:feed' %}" {% if not kind %}aria-current="page"{% endif %}>Hepsi</a>
     {% for value, label in kinds %}
@@ -68,4 +75,6 @@
       {% if page.has_next %}<a href="?{% if kind %}kind={{ kind }}&amp;{% endif %}page={{ page.next_page_number }}">Daha eski →</a>{% else %}<span></span>{% endif %}
     </nav>
   {% endif %}
+  </div>
+  </div>
 {% endblock %}

@@ -39,7 +39,7 @@
     </div>
   </header>
 
-  <main class="container">
+  <main class="container {% block main_class %}{% endblock %}">
     {% if messages %}
       <ul class="messages">
         {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}
