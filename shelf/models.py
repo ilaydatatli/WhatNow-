@@ -103,6 +103,15 @@ class ShelfEntry(models.Model):
         super().save(*args, **kwargs)
 
     @property
+    def activity_verb(self):
+        """Feed wording, e.g. "şu an okuyor"."""
+        if self.status == self.Status.DONE:
+            return "bitirdi"
+        if self.status == self.Status.CURRENT:
+            return "şu an okuyor" if self.item.kind == Item.Kind.BOOK else "şu an izliyor"
+        return "rafına ekledi"
+
+    @property
     def status_label(self):
         return status_label(self.status, self.item.kind)
 

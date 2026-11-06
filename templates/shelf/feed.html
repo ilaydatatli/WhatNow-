@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load shelf_extras %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>Akış</h1>
+    <a class="btn" href="{% url 'shelf:item_create' %}">+ Film / kitap ekle</a>
+  </div>
+
+  <nav class="tabs" aria-label="Türe göre filtrele">
+    <a href="{% url 'shelf:feed' %}" {% if not kind %}aria-current="page"{% endif %}>Hepsi</a>
+    {% for value, label in kinds %}
+      <a href="?kind={{ value }}" {% if kind == value %}aria-current="page"{% endif %}>{{ label }}</a>
+    {% endfor %}
+  </nav>
+
+  {% if page.object_list %}
+    <ul class="card-list">
+      {% for entry in page %}
+        {% with item=entry.item %}
+          <li class="card feed-card">
+            <p class="feed-line">
+              {% include "shelf/_user_link.html" with person=entry.user %}
+              <span class="feed-verb status-{{ entry.status }}">{{ entry.activity_verb }}</span>
+              <span class="meta-soft">· {{ entry.updated_at|ago }}</span>
+            </p>
+            <h2><a href="{{ item.get_absolute_url }}">{{ item.title }}</a></h2>
+            <p class="meta">
+              <span class="badge">{{ item.get_kind_display }}</span>
+              <span>{{ item.creator }} · {{ item.year }}</span>
+              {% if entry.rating %}<span class="stars" aria-label="5 üzerinden {{ entry.rating }}">{{ entry.rating|stars }}</span>{% endif %}
+            </p>
+            {% if entry.review %}<blockquote class="review">“{{ entry.review }}”</blockquote>{% endif %}
+
+            {% if user.is_authenticated and entry.user != user and item.pk not in my_item_ids %}
+              <form method="post" action="{% url 'shelf:item_add' item.pk %}" class="feed-action">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button type="submit" class="btn btn-ghost btn-small">+ Ben de ekleyeyim</button>
+              </form>
+            {% elif user.is_authenticated and entry.user != user %}
+              <p class="feed-action meta-soft">✓ Senin rafında da var</p>
+            {% endif %}
+          </li>
+        {% endwith %}
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="card empty">
+      <p>Akış sessiz — ilk filmi ya da kitabı sen ekle!</p>
+      <a class="btn" href="{% url 'shelf:item_create' %}">Film / kitap ekle</a>
+    </div>
+  {% endif %}
+
+  {% if page.has_other_pages %}
+    <nav class="pager">
+      {% if page.has_previous %}<a href="?{% if kind %}kind={{ kind }}&amp;{% endif %}page={{ page.previous_page_number }}">← Daha yeni</a>{% else %}<span></span>{% endif %}
+      <span>Sayfa {{ page.number }} / {{ page.paginator.num_pages }}</span>
+      {% if page.has_next %}<a href="?{% if kind %}kind={{ kind }}&amp;{% endif %}page={{ page.next_page_number }}">Daha eski →</a>{% else %}<span></span>{% endif %}
+    </nav>
+  {% endif %}
+{% endblock %}

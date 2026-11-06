@@ -16,7 +16,7 @@
         <span>·</span>
       {% endif %}
       <span>{{ item.shelf_count }} kişinin rafında</span>
-      {% if item.added_by %}<span>·</span><span>@{{ item.added_by.username }} ekledi</span>{% endif %}
+      {% if item.added_by %}<span>·</span><span>{% include "shelf/_user_link.html" with person=item.added_by %} ekledi</span>{% endif %}
     </p>
 
     <div class="item-actions">
@@ -38,5 +38,23 @@
     {% endif %}
   </article>
 
-  <a class="back-link" href="{% url 'shelf:home' %}">← Ana sayfaya dön</a>
+  <h2 class="section-title">Yorumlar</h2>
+  {% if reviews %}
+    <ul class="card-list">
+      {% for entry in reviews %}
+        <li class="card review-card">
+          <p class="meta">
+            {% include "shelf/_user_link.html" with person=entry.user %}
+            {% if entry.rating %}<span class="stars" aria-label="5 üzerinden {{ entry.rating }}">{{ entry.rating|stars }}</span>{% endif %}
+            {% if entry.finished_at %}<span>· {{ entry.finished_at|date:"j F Y" }}</span>{% endif %}
+          </p>
+          {% if entry.review %}<blockquote class="review">“{{ entry.review }}”</blockquote>{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="meta-soft">Henüz yorum yok. Bitiren ilk kişi sen ol!</p>
+  {% endif %}
+
+  <a class="back-link" href="{% url 'shelf:feed' %}">← Ana sayfaya dön</a>
 {% endblock %}

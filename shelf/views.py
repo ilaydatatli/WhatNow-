@@ -9,6 +9,8 @@ from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
+from accounts.models import User
+
 from .forms import ItemForm, ShelfEntryForm
 from .models import Item, ShelfEntry
 
@@ -32,15 +34,27 @@ def _add_to_shelf(user, item, status=ShelfEntry.Status.WANT):
     return entry, created
 
 
-def home(request):
-    # Temporary home page (Phase 5): newest items. Becomes the activity feed in Phase 6.
-    items = (
-        Item.objects.annotate(shelf_count=Count("entries"))
-        .select_related("added_by")
-        .order_by("-created_at", "-pk")
+def feed(request):
+    """Home page: the community's latest shelf activity, newest first."""
+    entries = ShelfEntry.objects.select_related("user", "item").order_by("-updated_at", "-pk")
+    kind = request.GET.get("kind")
+    if kind in Item.Kind.values:
+        entries = entries.filter(item__kind=kind)
+    else:
+        kind = ""
+    page = Paginator(entries, PAGE_SIZE).get_page(request.GET.get("page"))
+
+    # Items on this page that are already on the viewer's shelf (no "Ben de ekleyeyim" for those).
+    my_item_ids = set()
+    if request.user.is_authenticated:
+        my_item_ids = set(
+            request.user.shelf.filter(item__in=[entry.item_id for entry in page]).values_list("item_id", flat=True)
+        )
+    return render(
+        request,
+        "shelf/feed.html",
+        {"page": page, "kind": kind, "kinds": Item.Kind.choices, "my_item_ids": my_item_ids},
     )
-    page = Paginator(items, PAGE_SIZE).get_page(request.GET.get("page"))
-    return render(request, "shelf/home.html", {"page": page})
 
 
 @login_required
@@ -107,7 +121,15 @@ def item_detail(request, pk):
     my_entry = None
     if request.user.is_authenticated:
         my_entry = item.entries.filter(user=request.user).first()
-    return render(request, "shelf/item_detail.html", {"item": item, "my_entry": my_entry})
+    reviews = (
+        item.entries.filter(status=ShelfEntry.Status.DONE)
+        .filter(Q(rating__isnull=False) | ~Q(review=""))
+        .select_related("user")
+        .order_by("-finished_at", "-updated_at")
+    )
+    return render(
+        request, "shelf/item_detail.html", {"item": item, "my_entry": my_entry, "reviews": reviews}
+    )
 
 
 @login_required
@@ -143,5 +165,36 @@ def entry_remove(request, pk):
     if request.method == "POST":
         entry.delete()
         messages.success(request, f"“{entry.item.title}” rafından kaldırıldı.")
-        return redirect("accounts:profile")
+        return redirect("shelf:user_shelf", username=request.user.username)
     return render(request, "shelf/entry_remove.html", {"entry": entry})
+
+
+def user_shelf(request, username):
+    """Public profile: someone's shelf split into status tabs."""
+    owner = get_object_or_404(User, username__iexact=username)
+    entries = list(owner.shelf.select_related("item"))
+    tabs = []
+    for status, label in (
+        (ShelfEntry.Status.CURRENT, "Şu an"),
+        (ShelfEntry.Status.DONE, "Bitti"),
+        (ShelfEntry.Status.WANT, "İzleyeceğim / Okuyacağım"),
+    ):
+        tabs.append({"status": status, "label": label, "entries": [e for e in entries if e.status == status]})
+
+    # Default tab: the first one that has something in it.
+    selected = request.GET.get("status")
+    if selected not in ShelfEntry.Status.values:
+        selected = next((tab["status"] for tab in tabs if tab["entries"]), ShelfEntry.Status.CURRENT)
+    current_tab = next(tab for tab in tabs if tab["status"] == selected)
+
+    return render(
+        request,
+        "shelf/user_shelf.html",
+        {
+            "owner": owner,
+            "is_me": request.user == owner,
+            "tabs": tabs,
+            "current_tab": current_tab,
+            "total": len(entries),
+        },
+    )

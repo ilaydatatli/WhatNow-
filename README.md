@@ -1,6 +1,6 @@
 # What now?
 
-Kararsız kaldığın konularda topluluğa danışmak için basit bir anket uygulaması (prototip).
+Film ve kitap paylaşım platformu (prototip): rafına ekle, bitirince puanla, topluluğun akışından yeni şeyler keşfet.
 Proje kuralları ve fazlar için `CLAUDE.md` dosyasına bak.
 
 ## Lokal kurulum

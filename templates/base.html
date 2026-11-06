@@ -13,7 +13,7 @@
 <body>
   <header class="site-header">
     <div class="container">
-      <a class="brand" href="{% url 'shelf:home' %}">What now<span>?</span></a>
+      <a class="brand" href="{% url 'shelf:feed' %}">What now<span>?</span></a>
       <nav class="nav">
         <a href="{% url 'shelf:item_create' %}">+ Ekle</a>
         {% if user.is_authenticated %}

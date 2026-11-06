@@ -5,8 +5,6 @@ from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 
-from shelf.models import ShelfEntry
-
 from .forms import LoginForm, SignupForm
 
 
@@ -43,13 +41,4 @@ class EmailLoginView(LoginView):
 
 @login_required
 def profile(request):
-    entries = list(request.user.shelf.select_related("item"))
-    sections = [
-        (status, label, [entry for entry in entries if entry.status == status])
-        for status, label in (
-            (ShelfEntry.Status.CURRENT, "Şu an"),
-            (ShelfEntry.Status.DONE, "Bitti"),
-            (ShelfEntry.Status.WANT, "İzleyeceğim / Okuyacağım"),
-        )
-    ]
-    return render(request, "accounts/profile.html", {"sections": sections, "total": len(entries)})
+    return redirect("shelf:user_shelf", username=request.user.username)

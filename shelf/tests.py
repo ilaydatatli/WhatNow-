@@ -162,7 +162,7 @@ class ShelfEntryTests(ShelfTestCase):
         entry = ShelfEntry.objects.create(user=self.ayse, item=self.item)
         self.login(self.ayse)
         response = self.client.post(reverse("shelf:entry_remove", args=[entry.pk]))
-        self.assertRedirects(response, reverse("accounts:profile"))
+        self.assertRedirects(response, reverse("shelf:user_shelf", args=["ayse"]))
         self.assertFalse(ShelfEntry.objects.exists())
         self.assertTrue(Item.objects.filter(pk=self.item.pk).exists())
 
@@ -176,18 +176,84 @@ class PageTests(ShelfTestCase):
         self.assertContains(response, "Sabahattin Ali")
         self.assertContains(response, "Rafına eklemek için giriş yap")
 
-    def test_profile_groups_shelf_by_status(self):
+    def test_public_shelf_tabs(self):
         book = Item.objects.create(kind="book", title="Tutunamayanlar", creator="Oğuz Atay", year=1972)
         film = Item.objects.create(kind="film", title="Babam ve Oğlum", creator="Çağan Irmak", year=2005)
         ShelfEntry.objects.create(user=self.ayse, item=book, status="current")
         ShelfEntry.objects.create(user=self.ayse, item=film, status="done", rating=5, review="Ağladım.")
+        url = reverse("shelf:user_shelf", args=["AYSE"])
+
+        # Guests can see it; the default tab is the first non-empty one ("Şu an").
+        response = self.client.get(url)
+        self.assertEqual(response.context["current_tab"]["status"], "current")
+        self.assertContains(response, "Tutunamayanlar")
+        self.assertNotContains(response, "Babam ve Oğlum")
+        self.assertNotContains(response, "Düzenle")
+
+        response = self.client.get(url, {"status": "done"})
+        self.assertContains(response, "Ağladım.")
+
+        self.assertEqual(self.client.get(reverse("shelf:user_shelf", args=["yok"])).status_code, 404)
+
+    def test_own_profile_redirects_to_public_shelf(self):
         self.login(self.ayse)
         response = self.client.get(reverse("accounts:profile"))
-        sections = {status: entries for status, _, entries in response.context["sections"]}
-        self.assertEqual([e.item for e in sections["current"]], [book])
-        self.assertEqual([e.item for e in sections["done"]], [film])
-        self.assertEqual(sections["want"], [])
-        self.assertContains(response, "Ağladım.")
+        self.assertRedirects(response, reverse("shelf:user_shelf", args=["ayse"]))
+
+    def test_item_page_lists_reviews_of_finishers_only(self):
+        item = Item.objects.create(kind="book", title="Saatleri Ayarlama Enstitüsü", creator="A. H. Tanpınar", year=1961)
+        ShelfEntry.objects.create(user=self.ayse, item=item, status="done", rating=4, review="Zekice.")
+        ShelfEntry.objects.create(user=self.mert, item=item, status="current")
+        response = self.client.get(item.get_absolute_url())
+        self.assertEqual([e.user for e in response.context["reviews"]], [self.ayse])
+        self.assertContains(response, "Zekice.")
+
+
+class FeedTests(ShelfTestCase):
+    def setUp(self):
+        super().setUp()
+        self.book = Item.objects.create(kind="book", title="Dune", creator="Frank Herbert", year=1965)
+        self.film = Item.objects.create(kind="film", title="Amélie", creator="Jean-Pierre Jeunet", year=2001)
+        ShelfEntry.objects.create(user=self.ayse, item=self.book, status="done", rating=5, review="Efsane.")
+        ShelfEntry.objects.create(user=self.ayse, item=self.film, status="current")
+
+    def test_feed_wording_by_status(self):
+        response = self.client.get("/")
+        self.assertContains(response, "bitirdi")
+        self.assertContains(response, "★★★★★")
+        self.assertContains(response, "Efsane.")
+        self.assertContains(response, "şu an izliyor")
+        self.assertNotContains(response, "Ben de ekleyeyim")  # guests only browse
+
+    def test_kind_filter(self):
+        response = self.client.get("/", {"kind": "book"})
+        self.assertContains(response, "Dune")
+        self.assertNotContains(response, "Amélie")
+        response = self.client.get("/", {"kind": "nonsense"})
+        self.assertContains(response, "Amélie")
+
+    def test_me_too_button_and_redirect_back(self):
+        self.login(self.mert)
+        response = self.client.get("/?kind=book")
+        self.assertContains(response, "Ben de ekleyeyim")
+
+        response = self.client.post(
+            reverse("shelf:item_add", args=[self.book.pk]), {"next": "/?kind=book"}
+        )
+        self.assertRedirects(response, "/?kind=book")
+        response = self.client.get("/?kind=book")
+        self.assertNotContains(response, "Ben de ekleyeyim")
+        self.assertContains(response, "Senin rafında da var")
+
+    def test_feed_query_count_does_not_grow_with_entries(self):
+        for n in range(15):
+            item = Item.objects.create(kind="book", title=f"Kitap {n}", creator="Yazar", year=2000)
+            ShelfEntry.objects.create(user=self.ayse, item=item, status="done", rating=3)
+        self.login(self.mert)
+        self.client.get("/")  # warm up session/auth lookups
+        # session + user + count + page of entries + viewer's shelf lookup
+        with self.assertNumQueries(5):
+            self.client.get("/")
 
 
 class ItemSearchTests(ShelfTestCase):

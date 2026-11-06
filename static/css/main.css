@@ -563,3 +563,63 @@ textarea { resize: vertical; }
   font-size: 0.85rem;
   color: var(--ink-soft);
 }
+
+/* ---------- Feed & profile ---------- */
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.tabs a {
+  padding: 0.35rem 0.95rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+}
+
+.tabs a:hover { border-color: var(--ink-soft); }
+
+.tabs a[aria-current="page"] {
+  color: var(--surface);
+  background: var(--olive);
+  border-color: var(--olive);
+}
+
+.feed-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.4rem;
+  margin: 0 0 0.3rem;
+}
+
+.feed-card h2 { font-size: 1.2rem; margin-bottom: 0.3rem; }
+.feed-card h2 a { color: var(--ink); text-decoration: none; }
+.feed-card h2 a:hover { text-decoration: underline; }
+
+.user-link { font-weight: 700; text-decoration: none; }
+.user-link:hover { text-decoration: underline; }
+
+.feed-verb { font-weight: 700; }
+.feed-verb.status-done { color: var(--primary-dk); }
+.feed-verb.status-current { color: var(--olive); }
+
+.meta-soft { font-size: 0.9rem; font-weight: 400; color: var(--ink-soft); }
+
+.feed-action { margin: 0.8rem 0 0; }
+
+.section-title { margin-top: 1.75rem; }
+
+.review-card { padding: 0.9rem 1.1rem; }
+.review-card .review { margin-top: 0.4rem; }
+
+.stat.is-active {
+  border-color: var(--primary);
+  box-shadow: 3px 3px 0 var(--accent);
+}
