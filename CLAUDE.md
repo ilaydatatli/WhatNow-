@@ -61,7 +61,6 @@ what-now/
 │   ├── models.py  forms.py  views.py  urls.py  admin.py  tests.py
 │   └── templatetags/shelf_extras.py   # yıldız gösterimi, "3 saat önce" vb.
 ├── challenges/             # Challenge, Participant, CheckIn (Faz 8)
-├── polls/                  # GEÇİCİ: yalnızca tabloları silen migration'lar (bkz. Bölüm 8, Faz 7'de kaldırılır)
 ├── templates/
 │   ├── base.html
 │   ├── accounts/   (login.html, signup.html, profile.html)
@@ -234,7 +233,7 @@ what-now/
 - Lokal geliştirmede `DATABASE_URL` yoksa SQLite'a düş.
 - Migration'lar Vercel build'inde **çalıştırılmaz**; lokalden Supabase'e karşı elle (ve kullanıcı onayıyla) çalıştırılır.
 - **Yeni şema canlıya çıkmadan push yapılırsa canlı site bozulur.** Sıra: (1) lokalde testler geçer → (2) kullanıcı onayıyla Supabase'e `migrate` → (3) push/deploy.
-- **Anket tablolarının kaldırılması:** `polls` app'i Faz 5'te boş bir kabuğa indirilir (modeller silinir, tabloları düşüren migration üretilir, view/şablon/middleware kaldırılır). Supabase'e bu migration Faz 7'de uygulanınca `polls` klasörü ve `INSTALLED_APPS` girdisi tamamen silinir.
+- **Anket tabloları** Faz 7'de (Kasım 2026) Supabase'den silindi ve `polls` app'i projeden kaldırıldı. `django_migrations` tablosunda kalan `polls` satırları zararsızdır.
 - Vercel Django'yu `manage.py` → `WSGI_APPLICATION` üzerinden **sıfır yapılandırmayla** tanır; `vercel.json` ve `api/index.py` kullanılmıyor. `STATIC_ROOT` tanımlı olduğu için `collectstatic`'i build'de Vercel çalıştırır; WhiteNoise lokal ve yedek. Python: Vercel varsayılanı (3.12). Yapılandırma değişirse önce Vercel'in güncel dokümantasyonuna bak.
 - Canlı adres: https://what-now-ashen.vercel.app — Vercel ortam değişkenleri: `SECRET_KEY`, `DEBUG=False`, `ALLOWED_HOSTS=what-now-ashen.vercel.app`, `CSRF_TRUSTED_ORIGINS=https://what-now-ashen.vercel.app`, `DATABASE_URL` (Transaction pooler, 6543).
 - Ortam değişkeni değişince Vercel'de **Redeploy** gerekir; kod değişikliğinde `git push` yeterli.
@@ -250,17 +249,19 @@ Django iskeleti, e-posta ile giriş yapan custom User, anket/oylama, defter tasa
 
 ---
 
-### Faz 5 — Dönüşüm: Katalog ve Raf
+### ✅ Faz 5 — Dönüşüm: Katalog ve Raf
 **Hedef:** Anket kodu gider; kullanıcı film/kitap ekleyip rafını yönetebilir.
 
 **Prompt:**
 > CLAUDE.md'yi oku. Faz 5'i uygula: `polls` app'ini Bölüm 8'deki gibi boş kabuğa indir (modelleri sil, tabloları düşüren migration'ı üret; view, URL, şablon, templatetag, `VoterTokenMiddleware` ve testleri kaldır). `shelf` app'ini oluştur; Bölüm 4'teki `Item` ve `ShelfEntry` modellerini kısıtlarıyla yaz. `/items/new/` (tekrar engeliyle), `/items/<id>/` (temel bilgiler + "Rafıma ekle"), `/items/<id>/add/`, `/shelf/<id>/edit/` ve `/shelf/<id>/remove/` sayfalarını yaz. Geçici ana sayfa: son eklenen öğeler. Navbar'ı güncelle (Akış, Listeler, Meydan okumalar yer tutucu olmadan yalnızca var olan sayfalar; "Ekle" butonu). Mevcut profil sayfasını kullanıcının rafını duruma göre gösterecek şekilde uyarla. Admin kayıtları. Testler: tekrar öğe engeli (büyük/küçük harf), aynı öğeyi iki kez rafa ekleyememe, puan/yorumun yalnızca "Bitti"de tutulması, `finished_at` davranışı, başkasının kaydını düzenleyememe, girişsiz ekleyememe. Mevcut `accounts` testleri geçmeye devam etmeli.
 
+**Ek (Faz 5):** Ekleme formunda başlığa 3 harf yazınca kayıtlı öğeler önerilir (`/items/search/?q=`, JSON); öneriden "Rafıma ekle" formdaki durumla rafa ekler.
+
 **Manuel test:** Giriş yap → film ekle → aynı filmi "dune" / "DUNE" yazarak tekrar ekle → mevcut öğeye yönlendir. Durumu "Bitti" yap, 4 yıldız + yorum gir; "Okuyacağım"a geri al → puan/yorum temizlenir.
 
 ---
 
-### Faz 6 — Akış, Öğe Sayfası ve Profil
+### ✅ Faz 6 — Akış, Öğe Sayfası ve Profil
 **Hedef:** Topluluk görünürlüğü.
 
 **Prompt:**
@@ -270,7 +271,7 @@ Django iskeleti, e-posta ile giriş yapan custom User, anket/oylama, defter tasa
 
 ---
 
-### Faz 7 — Canlıya Alma (MVP)
+### ✅ Faz 7 — Canlıya Alma (MVP)
 **Hedef:** Raf + akış canlıda; anket tabloları kaldırılmış.
 
 **Prompt:**

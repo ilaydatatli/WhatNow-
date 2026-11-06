@@ -55,7 +55,6 @@ INSTALLED_APPS = [
     # Local apps
     "accounts",
     "shelf",
-    "polls",  # temporary: drops old poll tables (CLAUDE.md section 8)
 ]
 
 MIDDLEWARE = [
