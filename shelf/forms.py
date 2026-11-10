@@ -1,7 +1,7 @@
 from django import forms
 from django.utils import timezone
 
-from .models import Item, ShelfEntry, status_label
+from .models import Item, ShelfEntry, ThemeList, status_label
 
 RATING_CHOICES = [("", "Puan yok")] + [(n, "★" * n) for n in range(1, 6)]
 
@@ -79,3 +79,17 @@ class ShelfEntryForm(forms.ModelForm):
         if finished_at and finished_at > timezone.localdate():
             raise forms.ValidationError("Bitirme tarihi gelecekte olamaz.")
         return finished_at
+
+
+class ThemeListForm(forms.ModelForm):
+    class Meta:
+        model = ThemeList
+        fields = ["title", "description"]
+        widgets = {
+            "title": forms.TextInput(attrs={"placeholder": "Yağmurlu pazar filmleri"}),
+            "description": forms.Textarea(attrs={"rows": 3, "placeholder": "Bu liste ne hakkında?"}),
+        }
+        help_texts = {"description": "İsteğe bağlı, en fazla 300 karakter."}
+
+    def clean_title(self):
+        return " ".join(self.cleaned_data["title"].split())

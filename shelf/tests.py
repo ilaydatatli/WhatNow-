@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from accounts.models import User
 
-from .models import Item, ShelfEntry
+from .models import Item, ShelfEntry, ThemeList, ThemeListItem
 
 PASSWORD = "kahve-fincani-42"
 
@@ -342,3 +342,106 @@ class TopTests(ShelfTestCase):
     def test_empty_state(self):
         response = self.client.get(reverse("shelf:top"))
         self.assertContains(response, "Henüz puanlanmış kitap yok")
+
+
+class ThemeListTests(ShelfTestCase):
+    def setUp(self):
+        super().setUp()
+        self.item = Item.objects.create(kind="film", title="Amélie", creator="Jean-Pierre Jeunet", year=2001)
+        self.theme_list = ThemeList.objects.create(owner=self.ayse, title="Yağmurlu pazar filmleri")
+
+    def add_url(self, theme_list=None):
+        return reverse("shelf:list_item_add", args=[(theme_list or self.theme_list).pk])
+
+    def test_create_requires_login_and_sets_owner(self):
+        url = reverse("shelf:list_create")
+        self.assertRedirects(self.client.get(url), f"{reverse('accounts:login')}?next={url}")
+
+        self.login(self.mert)
+        response = self.client.post(url, {"title": "  Tatilde   okunacaklar ", "description": ""})
+        theme_list = ThemeList.objects.get(owner=self.mert)
+        self.assertRedirects(response, theme_list.get_absolute_url())
+        self.assertEqual(theme_list.title, "Tatilde okunacaklar")
+
+    def test_owner_adds_item_with_note(self):
+        self.login(self.ayse)
+        response = self.client.post(self.add_url(), {"item_id": self.item.pk, "note": "Sıcacık"})
+        self.assertRedirects(response, self.theme_list.get_absolute_url())
+        list_item = self.theme_list.items.get()
+        self.assertEqual((list_item.item, list_item.note), (self.item, "Sıcacık"))
+
+    def test_same_item_cannot_be_added_twice(self):
+        self.login(self.ayse)
+        self.client.post(self.add_url(), {"item_id": self.item.pk, "note": "ilk"})
+        self.client.post(self.add_url(), {"item_id": self.item.pk, "note": "ikinci"})
+        self.assertEqual(self.theme_list.items.count(), 1)
+        self.assertEqual(self.theme_list.items.get().note, "ilk")
+
+    def test_cannot_add_to_someone_elses_list(self):
+        self.login(self.mert)
+        response = self.client.post(self.add_url(), {"item_id": self.item.pk})
+        self.assertEqual(response.status_code, 404)
+        self.assertFalse(ThemeListItem.objects.exists())
+
+    def test_bad_item_id_is_404(self):
+        self.login(self.ayse)
+        for item_id in ("", "abc", "9999"):
+            self.assertEqual(self.client.post(self.add_url(), {"item_id": item_id}).status_code, 404)
+
+    def test_cannot_remove_from_someone_elses_list(self):
+        ThemeListItem.objects.create(theme_list=self.theme_list, item=self.item)
+        url = reverse("shelf:list_item_remove", args=[self.theme_list.pk, self.item.pk])
+
+        self.login(self.mert)
+        self.assertEqual(self.client.post(url).status_code, 404)
+        self.assertEqual(self.theme_list.items.count(), 1)
+
+        self.login(self.ayse)
+        self.assertRedirects(self.client.post(url), self.theme_list.get_absolute_url())
+        self.assertFalse(self.theme_list.items.exists())
+        self.assertTrue(Item.objects.filter(pk=self.item.pk).exists())
+
+    def test_only_owner_can_edit_or_delete(self):
+        edit_url = reverse("shelf:list_edit", args=[self.theme_list.pk])
+        delete_url = reverse("shelf:list_delete", args=[self.theme_list.pk])
+
+        self.login(self.mert)
+        self.assertEqual(self.client.get(edit_url).status_code, 404)
+        self.assertEqual(self.client.post(delete_url).status_code, 404)
+
+        self.login(self.ayse)
+        self.client.post(edit_url, {"title": "Pazar filmleri", "description": "Battaniye şart"})
+        self.theme_list.refresh_from_db()
+        self.assertEqual(self.theme_list.title, "Pazar filmleri")
+        self.assertRedirects(self.client.post(delete_url), reverse("shelf:user_shelf", args=["ayse"]))
+        self.assertFalse(ThemeList.objects.exists())
+
+    def test_guest_can_view_lists(self):
+        ThemeListItem.objects.create(theme_list=self.theme_list, item=self.item, note="Sıcacık")
+        for url in (
+            reverse("shelf:list_index"),
+            self.theme_list.get_absolute_url(),
+            reverse("shelf:user_shelf", args=["ayse"]),
+            self.item.get_absolute_url(),
+        ):
+            response = self.client.get(url)
+            self.assertContains(response, "Yağmurlu pazar filmleri")
+        detail = self.client.get(self.theme_list.get_absolute_url())
+        self.assertContains(detail, "Amélie")
+        self.assertContains(detail, "Sıcacık")
+        self.assertNotContains(detail, "Listeden çıkar")
+
+    def test_item_page_offers_only_lists_without_the_item(self):
+        other = ThemeList.objects.create(owner=self.ayse, title="Fransız filmleri")
+        ThemeListItem.objects.create(theme_list=self.theme_list, item=self.item)
+        self.login(self.ayse)
+        response = self.client.get(self.item.get_absolute_url())
+        self.assertEqual(response.context["my_lists"], [other])
+        self.assertContains(response, self.add_url(other))
+
+    def test_containing_lists_count_all_items(self):
+        second = Item.objects.create(kind="film", title="Chocolat", creator="Lasse Hallström", year=2000)
+        ThemeListItem.objects.create(theme_list=self.theme_list, item=self.item)
+        ThemeListItem.objects.create(theme_list=self.theme_list, item=second)
+        response = self.client.get(self.item.get_absolute_url())
+        self.assertEqual([tl.item_count for tl in response.context["containing_lists"]], [2])

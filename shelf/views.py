@@ -11,8 +11,8 @@ from django.views.decorators.http import require_POST
 
 from accounts.models import User
 
-from .forms import ItemForm, ShelfEntryForm
-from .models import Item, ShelfEntry
+from .forms import ItemForm, ShelfEntryForm, ThemeListForm
+from .models import Item, ShelfEntry, ThemeList, ThemeListItem
 from .quiz import make_question
 
 PAGE_SIZE = 20
@@ -145,6 +145,16 @@ def item_detail(request, pk):
     my_entry = None
     if request.user.is_authenticated:
         my_entry = item.entries.filter(user=request.user).first()
+    my_lists = []
+    if request.user.is_authenticated:
+        my_lists = list(request.user.theme_lists.exclude(items__item=item).order_by("title"))
+    containing_lists = (
+        # Filter through a subquery: filtering on the same relation before Count would only count this item.
+        ThemeList.objects.filter(pk__in=ThemeListItem.objects.filter(item=item).values("theme_list"))
+        .select_related("owner")
+        .annotate(item_count=Count("items"))
+        .order_by("-created_at", "-pk")
+    )
     reviews = (
         item.entries.filter(status=ShelfEntry.Status.DONE)
         .filter(Q(rating__isnull=False) | ~Q(review=""))
@@ -152,7 +162,15 @@ def item_detail(request, pk):
         .order_by("-finished_at", "-updated_at")
     )
     return render(
-        request, "shelf/item_detail.html", {"item": item, "my_entry": my_entry, "reviews": reviews}
+        request,
+        "shelf/item_detail.html",
+        {
+            "item": item,
+            "my_entry": my_entry,
+            "reviews": reviews,
+            "my_lists": my_lists,
+            "containing_lists": containing_lists,
+        },
     )
 
 
@@ -220,5 +238,99 @@ def user_shelf(request, username):
             "tabs": tabs,
             "current_tab": current_tab,
             "total": len(entries),
+            "theme_lists": owner.theme_lists.annotate(item_count=Count("items")).order_by("-created_at", "-pk"),
         },
     )
+
+
+# --- Themed lists -------------------------------------------------------------
+
+
+def list_index(request):
+    """All themed lists, newest first, with their item counts."""
+    theme_lists = (
+        ThemeList.objects.select_related("owner").annotate(item_count=Count("items")).order_by("-created_at", "-pk")
+    )
+    page = Paginator(theme_lists, PAGE_SIZE).get_page(request.GET.get("page"))
+    return render(request, "shelf/list_index.html", {"page": page})
+
+
+@login_required
+def list_create(request):
+    form = ThemeListForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        theme_list = form.save(commit=False)
+        theme_list.owner = request.user
+        theme_list.save()
+        messages.success(request, f"“{theme_list.title}” listesi oluşturuldu.")
+        return redirect(_safe_next(request, theme_list.get_absolute_url()))
+    return render(request, "shelf/list_form.html", {"form": form, "next": _safe_next(request, "")})
+
+
+def list_detail(request, pk):
+    theme_list = get_object_or_404(ThemeList.objects.select_related("owner"), pk=pk)
+    list_items = theme_list.items.select_related("item")
+    my_item_ids = set()
+    if request.user.is_authenticated:
+        my_item_ids = set(
+            request.user.shelf.filter(item__list_entries__theme_list=theme_list).values_list("item_id", flat=True)
+        )
+    return render(
+        request,
+        "shelf/list_detail.html",
+        {
+            "theme_list": theme_list,
+            "list_items": list_items,
+            "is_owner": request.user == theme_list.owner,
+            "my_item_ids": my_item_ids,
+        },
+    )
+
+
+@login_required
+def list_edit(request, pk):
+    theme_list = get_object_or_404(ThemeList, pk=pk, owner=request.user)
+    form = ThemeListForm(request.POST or None, instance=theme_list)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Liste güncellendi.")
+        return redirect(theme_list)
+    return render(request, "shelf/list_form.html", {"form": form, "theme_list": theme_list})
+
+
+@login_required
+def list_delete(request, pk):
+    theme_list = get_object_or_404(ThemeList, pk=pk, owner=request.user)
+    if request.method == "POST":
+        theme_list.delete()
+        messages.success(request, f"“{theme_list.title}” listesi silindi.")
+        return redirect("shelf:user_shelf", username=request.user.username)
+    return render(request, "shelf/list_delete.html", {"theme_list": theme_list})
+
+
+@login_required
+@require_POST
+def list_item_add(request, pk):
+    """"Listeye ekle" from an item page: puts the item into one of my lists."""
+    theme_list = get_object_or_404(ThemeList, pk=pk, owner=request.user)
+    item_id = request.POST.get("item_id", "")
+    item = get_object_or_404(Item, pk=item_id if item_id.isdigit() else 0)
+    note = " ".join(request.POST.get("note", "").split())[:200]
+    _, created = ThemeListItem.objects.get_or_create(theme_list=theme_list, item=item, defaults={"note": note})
+    if created:
+        theme_list.save(update_fields=["updated_at"])
+        messages.success(request, f"“{item.title}” “{theme_list.title}” listesine eklendi.")
+    else:
+        messages.info(request, f"“{item.title}” zaten “{theme_list.title}” listesinde.")
+    return redirect(_safe_next(request, theme_list.get_absolute_url()))
+
+
+@login_required
+@require_POST
+def list_item_remove(request, pk, item_id):
+    list_item = get_object_or_404(
+        ThemeListItem.objects.select_related("item"), theme_list__pk=pk, theme_list__owner=request.user, item_id=item_id
+    )
+    list_item.delete()
+    messages.success(request, f"“{list_item.item.title}” listeden çıkarıldı.")
+    return redirect("shelf:list_detail", pk=pk)

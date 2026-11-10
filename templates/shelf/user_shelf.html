@@ -47,4 +47,18 @@
   {% else %}
     <div class="card empty"><p>Bu rafta şimdilik bir şey yok.</p></div>
   {% endif %}
+
+  <div class="page-head section-title">
+    <h2>Listeleri</h2>
+    {% if is_me %}<a class="btn btn-ghost btn-small" href="{% url 'shelf:list_create' %}">+ Liste oluştur</a>{% endif %}
+  </div>
+  {% if theme_lists %}
+    <ul class="card-list">
+      {% for theme_list in theme_lists %}
+        {% include "shelf/_list_card.html" %}
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="meta-soft">{% if is_me %}Henüz listen yok.{% else %}@{{ owner.username }} henüz liste oluşturmamış.{% endif %}</p>
+  {% endif %}
 {% endblock %}

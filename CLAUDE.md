@@ -287,11 +287,13 @@ Django iskeleti, e-posta ile giriş yapan custom User, anket/oylama, defter tasa
 
 ---
 
-### Faz 8 — Temalı Listeler
+### ✅ Faz 8 — Temalı Listeler
 **Prompt:**
 > CLAUDE.md'yi oku. Faz 8'i uygula: Bölüm 4'teki `ThemeList` ve `ThemeListItem` modellerini ve Bölüm 5'teki `/lists/...` sayfalarını yaz. Öğe sayfasına "Listeye ekle" (kullanıcının listelerinden seçim + not) ve "Bu öğeyi içeren listeler" bölümünü, profile kullanıcının listelerini ekle. Listedeki her öğede "Ben de ekleyeyim". Testler: başkasının listesine öğe ekleyememe/silememe, aynı öğeyi listeye iki kez ekleyememe, misafirin listeyi görebilmesi. Canlıya alma Faz 7'deki sırayla ve onayla.
 
 **Manuel test:** "Yağmurlu pazar filmleri" listesi oluştur → 3 film ekle, notlar yaz → çıkış yap → liste linkini aç, görünüyor.
+
+**Not (Faz 8):** Öğe sayfasındaki "Listeye ekle", not alanı + listeleri olan kullanıcı için her liste için bir buton (`formaction`) şeklinde; JS gerekmez. Öğeyi zaten içeren listeler seçeneklerde çıkmaz.
 
 ---
 

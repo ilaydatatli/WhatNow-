@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}{{ theme_list.title }} · What now?{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>{{ theme_list.title }}</h1>
+    {% if is_owner %}<a class="btn btn-ghost" href="{% url 'shelf:list_edit' theme_list.pk %}">Düzenle</a>{% endif %}
+  </div>
+  <p class="meta">
+    {% include "shelf/_user_link.html" with person=theme_list.owner %}
+    <span>· {{ list_items|length }} öğe</span>
+  </p>
+  {% if theme_list.description %}<p class="lead">{{ theme_list.description }}</p>{% endif %}
+
+  {% if list_items %}
+    <ol class="card-list list-items">
+      {% for list_item in list_items %}
+        {% with item=list_item.item %}
+          <li class="card item-card">
+            {% include "shelf/_item_heading.html" %}
+            {% if list_item.note %}<blockquote class="review">“{{ list_item.note }}”</blockquote>{% endif %}
+
+            <div class="list-item-actions">
+              {% if user.is_authenticated and item.pk not in my_item_ids %}
+                <form method="post" action="{% url 'shelf:item_add' item.pk %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                  <button type="submit" class="btn btn-ghost btn-small">+ Ben de ekleyeyim</button>
+                </form>
+              {% elif user.is_authenticated %}
+                <span class="meta-soft">✓ Senin rafında da var</span>
+              {% endif %}
+              {% if is_owner %}
+                <form method="post" action="{% url 'shelf:list_item_remove' theme_list.pk item.pk %}">
+                  {% csrf_token %}
+                  <button type="submit" class="link-button">Listeden çıkar</button>
+                </form>
+              {% endif %}
+            </div>
+          </li>
+        {% endwith %}
+      {% endfor %}
+    </ol>
+  {% else %}
+    <div class="card empty">
+      {% if is_owner %}
+        <p>Liste boş. Bir film ya da kitap sayfasına git, “Listeye ekle” ile buraya ekle.</p>
+        <a class="btn" href="{% url 'shelf:feed' %}">Akışa göz at</a>
+      {% else %}
+        <p>Bu listede henüz bir şey yok.</p>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <a class="back-link" href="{% url 'shelf:list_index' %}">← Tüm listeler</a>
+{% endblock %}

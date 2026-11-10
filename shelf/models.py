@@ -122,3 +122,46 @@ def status_label(status, kind):
     if status == ShelfEntry.Status.WANT:
         return "Okuyacağım" if is_book else "İzleyeceğim"
     return ShelfEntry.Status(status).label
+
+
+class ThemeList(models.Model):
+    """A user's themed, public list of items, e.g. "Yağmurlu pazar filmleri"."""
+
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="theme_lists", verbose_name="sahibi"
+    )
+    title = models.CharField("başlık", max_length=100)
+    description = models.CharField("açıklama", max_length=300, blank=True)
+    created_at = models.DateTimeField("oluşturulma", auto_now_add=True)
+    updated_at = models.DateTimeField("güncellenme", auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "temalı liste"
+        verbose_name_plural = "temalı listeler"
+
+    def __str__(self):
+        return self.title
+
+    def get_absolute_url(self):
+        return reverse("shelf:list_detail", args=[self.pk])
+
+
+class ThemeListItem(models.Model):
+    """One item inside a themed list, with an optional short note."""
+
+    theme_list = models.ForeignKey(ThemeList, on_delete=models.CASCADE, related_name="items", verbose_name="liste")
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="list_entries", verbose_name="öğe")
+    note = models.CharField("not", max_length=200, blank=True)
+    added_at = models.DateTimeField("eklenme", auto_now_add=True)
+
+    class Meta:
+        ordering = ["added_at", "pk"]
+        verbose_name = "liste öğesi"
+        verbose_name_plural = "liste öğeleri"
+        constraints = [
+            models.UniqueConstraint(fields=["theme_list", "item"], name="unique_theme_list_item"),
+        ]
+
+    def __str__(self):
+        return f"{self.theme_list} · {self.item}"

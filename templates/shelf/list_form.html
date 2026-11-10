@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}{% if theme_list %}Listeyi düzenle{% else %}Liste oluştur{% endif %} · What now?{% endblock %}
+
+{% block content %}
+  <h1>{% if theme_list %}Listeyi düzenle{% else %}Liste oluştur{% endif %}</h1>
+  {% if not theme_list %}<p class="lead">Önce listeyi aç, sonra film ve kitap sayfalarındaki “Listeye ekle” ile doldur.</p>{% endif %}
+
+  <form method="post" class="card form-card" novalidate>
+    {% csrf_token %}
+    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-block">{% if theme_list %}Kaydet{% else %}Oluştur{% endif %}</button>
+  </form>
+
+  {% if theme_list %}
+    <p class="form-footer"><a href="{% url 'shelf:list_delete' theme_list.pk %}">Bu listeyi sil</a></p>
+    <a class="back-link" href="{{ theme_list.get_absolute_url }}">← Listeye dön</a>
+  {% endif %}
+{% endblock %}

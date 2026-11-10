@@ -39,6 +39,39 @@
     {% endif %}
   </article>
 
+  {% if user.is_authenticated %}
+    <section class="card list-add">
+      <h2>Listeye ekle</h2>
+      {% if my_lists %}
+        <form method="post" class="list-add-form">
+          {% csrf_token %}
+          <input type="hidden" name="item_id" value="{{ item.pk }}">
+          <input type="hidden" name="next" value="{{ request.path }}">
+          <label for="list-note">Kısa not <span class="meta-soft">(isteğe bağlı)</span></label>
+          <input id="list-note" type="text" name="note" maxlength="200" placeholder="Neden bu listede?">
+          <p class="meta-soft">Hangi listeye?</p>
+          <div class="list-add-buttons">
+            {% for theme_list in my_lists %}
+              <button type="submit" class="btn btn-ghost btn-small" formaction="{% url 'shelf:list_item_add' theme_list.pk %}">+ {{ theme_list.title }}</button>
+            {% endfor %}
+          </div>
+        </form>
+      {% else %}
+        <p class="meta-soft">Eklenebilecek bir listen yok{% if user.theme_lists.exists %} (hepsinde zaten var){% endif %}.</p>
+      {% endif %}
+      <a class="list-add-new" href="{% url 'shelf:list_create' %}?next={{ request.path|urlencode }}">+ Yeni liste oluştur</a>
+    </section>
+  {% endif %}
+
+  {% if containing_lists %}
+    <h2 class="section-title">Bu öğeyi içeren listeler</h2>
+    <ul class="card-list">
+      {% for theme_list in containing_lists %}
+        {% include "shelf/_list_card.html" with show_owner=True %}
+      {% endfor %}
+    </ul>
+  {% endif %}
+
   <h2 class="section-title">Yorumlar</h2>
   {% if reviews %}
     <ul class="card-list">

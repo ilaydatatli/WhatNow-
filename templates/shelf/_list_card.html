@@ -1,0 +1,9 @@
+{# A themed list as a card; expects theme_list annotated with item_count. #}
+<li class="card list-card">
+  <h2><a href="{{ theme_list.get_absolute_url }}">{{ theme_list.title }}</a></h2>
+  {% if theme_list.description %}<p class="list-desc">{{ theme_list.description|truncatechars:140 }}</p>{% endif %}
+  <p class="meta">
+    <span class="badge">{{ theme_list.item_count }} öğe</span>
+    {% if show_owner %}{% include "shelf/_user_link.html" with person=theme_list.owner %}{% endif %}
+  </p>
+</li>

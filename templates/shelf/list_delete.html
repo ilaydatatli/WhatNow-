@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Listeyi sil · What now?{% endblock %}
+
+{% block content %}
+  <h1>Listeyi sil</h1>
+
+  <form method="post" class="card form-card">
+    {% csrf_token %}
+    <p>“{{ theme_list.title }}” listesi silinsin mi? Filmler ve kitaplar kataloğda ve raflarda kalır, yalnızca liste silinir.</p>
+    <div class="delete-actions">
+      <button type="submit" class="btn">Evet, sil</button>
+      <a class="btn btn-ghost" href="{{ theme_list.get_absolute_url }}">Vazgeç</a>
+    </div>
+  </form>
+{% endblock %}
